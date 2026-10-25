@@ -1802,6 +1802,7 @@
       setStep('lookup', 'done', 'Top 3');
       setStep('done', 'done', `${((performance.now() - t0) / 1000).toFixed(1)}s`);
       closeDrawer();
+      showLoadedState();
       renderDashboard();
       flashPill('Audit complete', 900);
     } catch (err) {
