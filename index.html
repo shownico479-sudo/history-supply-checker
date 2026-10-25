@@ -1,0 +1,2658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>History Supply Checker — Operations Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Tone Warna Referensi: Warm Peach-Apricot Gradient & Deep Plum */
+      --bg-grad-start: #f9ecdf;
+      --bg-grad-mid: #f7cbb0;
+      --bg-grad-end: #eb8f73;
+
+      --plum-900: #361938;
+      --plum-800: #49254a;
+      --plum-700: #5c315e;
+      --plum-600: #734176;
+      --plum-100: #f3eaf4;
+      --plum-50:  #faf5fa;
+
+      --surface-card: rgba(255, 252, 249, 0.95);
+      --surface-solid: #fffcf9;
+      --surface-muted: #f6efe9;
+      --surface-hover: #fdf6f0;
+
+      --border-subtle: #e7d8cc;
+      --border-strong: #cfb8cb;
+
+      --text-primary: #2b162c;
+      --text-secondary: #6b5265;
+      --text-muted: #988091;
+
+      --status-ok-bg: #e6f6ec;
+      --status-ok-text: #1b6b3e;
+      --status-warn-bg: #fef0df;
+      --status-warn-text: #a3520f;
+      --status-none-bg: #f3eaf4;
+      --status-none-text: #6a456c;
+      --status-err-bg: #fde8e8;
+      --status-err-text: #b4232c;
+
+      --radius-sm: 7px;
+      --radius-md: 11px;
+      --radius-lg: 15px;
+      --shadow-thin: 0 2px 5px rgba(54, 25, 56, 0.05), 0 1px 2px rgba(54, 25, 56, 0.04);
+      --shadow-float: 0 12px 28px rgba(54, 25, 56, 0.14);
+      --transition-quiet: 160ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-primary);
+      background: linear-gradient(155deg, var(--bg-grad-start) 0%, var(--bg-grad-mid) 48%, var(--bg-grad-end) 100%);
+      -webkit-font-smoothing: antialiased;
+      font-size: 13px;
+    }
+
+    /* Fixed-width numerals Sesuai Spesifikasi Grok */
+    .num, .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    .label-caps {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.055em;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    /* Custom Thin Scrollbars untuk daftar 10-30+ item */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(73, 37, 74, 0.22);
+      border-radius: 99px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(73, 37, 74, 0.4);
+    }
+
+    /* APP SHELL */
+    .app-shell {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      height: 100vh;
+      width: 100vw;
+    }
+
+    /* THIN ICON RAIL (Leftmost) */
+    .icon-rail {
+      background: rgba(54, 25, 56, 0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      gap: 8px;
+      border-right: 1px solid rgba(255, 255, 255, 0.12);
+      z-index: 30;
+    }
+
+    .rail-brand {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #7e4882, #49254a);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .rail-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: transparent;
+      color: rgba(255, 240, 248, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all var(--transition-quiet);
+      position: relative;
+    }
+
+    .rail-btn:hover, .rail-btn.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+
+    .rail-btn.active::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      width: 3px;
+      height: 18px;
+      background: #f7cbb0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .rail-spacer { flex: 1; }
+
+    /* MAIN DESK AREA */
+    .desk-area {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 12px 16px 14px 16px;
+      gap: 10px;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    /* TOP HEADER */
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 38px;
+      flex-shrink: 0;
+    }
+
+    .title-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .title-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--plum-800);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-thin);
+    }
+
+    .title-text h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--plum-800);
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .title-text p {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Small "Loading" Pill (Grok Spec) */
+    .loading-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      background: var(--plum-800);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      box-shadow: var(--shadow-thin);
+      opacity: 0;
+      transform: translateY(-3px);
+      pointer-events: none;
+      transition: opacity var(--transition-quiet), transform var(--transition-quiet);
+    }
+
+    .loading-pill.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pill-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #f7cbb0;
+      animation: pulseDot 1s infinite ease-in-out;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 0.35; transform: scale(0.85); }
+      50% { opacity: 1; transform: scale(1.15); }
+    }
+
+    .greeting-box { text-align: right; }
+    .greeting-box .greet {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--plum-800);
+    }
+    .greeting-box .date-str {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    /* WORKSPACE GRID: Left Input (300px) + Right Desk (1fr) */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 12px;
+      flex: 1;
+      min-height: 0;
+      min-width: 0;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      background: var(--surface-card);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-thin);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .left-panel-header {
+      background: linear-gradient(135deg, var(--plum-800), var(--plum-700));
+      color: #fff;
+      padding: 11px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .lh-left {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .lh-icon {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.14);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .lh-title { font-size: 13px; font-weight: 700; }
+    .lh-sub { font-size: 10px; color: rgba(255, 255, 255, 0.78); }
+
+    .lh-badge {
+      font-size: 9.5px;
+      padding: 2px 7px;
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.18);
+      font-weight: 600;
+    }
+
+    .left-panel-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .step-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 11.5px;
+      color: var(--plum-800);
+    }
+
+    .step-num {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      background: var(--plum-800);
+      color: #fff;
+      font-size: 9.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pill-tag {
+      font-size: 9.5px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 5px;
+      background: #e8f2ff;
+      color: #2463eb;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 106px;
+      gap: 6px;
+    }
+
+    .field-box {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .input-control {
+      width: 100%;
+      padding: 6px 8px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      font-size: 11.5px;
+      color: var(--text-primary);
+      font-family: inherit;
+      outline: none;
+    }
+
+    .input-control:focus {
+      border-color: var(--plum-700);
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 1.5px dashed #cbb8c8;
+      border-radius: var(--radius-md);
+      background: var(--surface-muted);
+      padding: 12px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-quiet);
+      position: relative;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--plum-700);
+      background: var(--plum-50);
+    }
+
+    .dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .dz-main {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--plum-800);
+      margin-top: 2px;
+    }
+
+    .dz-sub {
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+
+    .file-selected-chip {
+      margin-top: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: var(--plum-100);
+      color: var(--plum-800);
+      font-size: 10.5px;
+      font-weight: 600;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Preset Buttons */
+    .demo-presets {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .preset-btn {
+      padding: 5px 6px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      color: var(--text-secondary);
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all var(--transition-quiet);
+      text-align: center;
+    }
+
+    .preset-btn:hover, .preset-btn.active {
+      border-color: var(--plum-700);
+      background: var(--plum-100);
+      color: var(--plum-800);
+    }
+
+    .btn-deepseek {
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--plum-800);
+      color: #fff;
+      font-size: 11.5px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      box-shadow: 0 3px 8px rgba(73, 37, 74, 0.25);
+      transition: background var(--transition-quiet);
+    }
+
+    .btn-deepseek:hover:not(:disabled) {
+      background: var(--plum-900);
+    }
+
+    .btn-deepseek:disabled {
+      opacity: 0.65;
+      cursor: wait;
+    }
+
+    /* Status Tracker */
+    .status-tracker {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .st-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    .st-left {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+
+    .st-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #dfd3de;
+    }
+
+    .st-row.active { color: var(--plum-800); font-weight: 700; }
+    .st-row.active .st-dot {
+      background: #e67e22;
+      box-shadow: 0 0 0 3px rgba(230, 126, 34, 0.2);
+    }
+    .st-row.done { color: var(--status-ok-text); font-weight: 600; }
+    .st-row.done .st-dot { background: var(--status-ok-text); }
+    .st-row.error { color: var(--status-err-text); font-weight: 700; }
+    .st-row.error .st-dot { background: var(--status-err-text); }
+
+    /* RIGHT DESK */
+    .right-desk {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    /* SUMMARY CARDS ROW */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .summary-card {
+      background: var(--surface-card);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      box-shadow: var(--shadow-thin);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .sc-info { min-width: 0; }
+    .sc-value {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--plum-800);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .sc-sub {
+      font-size: 10px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sc-badge {
+      width: 30px;
+      height: 30px;
+      border-radius: var(--radius-sm);
+      background: var(--plum-100);
+      color: var(--plum-800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* SINGLE-LINE FILTER BAR */
+    .filter-bar {
+      background: var(--surface-card);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      border-radius: var(--radius-md);
+      padding: 5px 9px;
+      box-shadow: var(--shadow-thin);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      overflow-x: auto;
+      flex-shrink: 0;
+    }
+
+    .filter-bar::-webkit-scrollbar { height: 0; }
+
+    .fb-seg {
+      display: inline-flex;
+      background: var(--surface-muted);
+      padding: 2px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .fb-seg button {
+      border: none;
+      background: transparent;
+      padding: 3.5px 7px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .fb-seg button.active {
+      background: var(--plum-800);
+      color: #fff;
+    }
+
+    .fb-search {
+      position: relative;
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .fb-search input {
+      width: 100%;
+      padding: 4.5px 8px 4.5px 24px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      font-size: 11px;
+      outline: none;
+    }
+
+    .fb-search svg {
+      position: absolute;
+      left: 7px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+
+    .fb-select, .fb-btn {
+      padding: 4.5px 7.5px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all var(--transition-quiet);
+    }
+
+    .fb-btn:hover, .fb-select:hover {
+      border-color: var(--plum-700);
+      background: var(--plum-50);
+    }
+
+    .fb-btn.flag-active {
+      background: var(--status-warn-bg);
+      border-color: #f3b778;
+      color: var(--status-warn-text);
+    }
+
+    .fb-btn.primary-action {
+      background: var(--plum-800);
+      border-color: var(--plum-800);
+      color: #fff;
+    }
+
+    /* RESULTS STAGE */
+    .results-stage {
+      flex: 1;
+      background: var(--surface-card);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-thin);
+      display: flex;
+      overflow: hidden;
+      position: relative;
+      min-height: 0;
+    }
+
+    /* EMPTY STATE */
+    .empty-stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .empty-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 13px;
+      background: var(--plum-100);
+      color: var(--plum-800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .empty-stage h2 {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--plum-800);
+      margin-bottom: 4px;
+    }
+
+    .empty-stage > p {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      margin-bottom: 18px;
+    }
+
+    .empty-steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 210px);
+      gap: 10px;
+      text-align: left;
+    }
+
+    .empty-step-card {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      box-shadow: var(--shadow-thin);
+    }
+
+    .esc-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 6px;
+    }
+
+    .esc-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: var(--plum-50);
+      color: var(--plum-800);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-step-card h4 {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--plum-800);
+      margin-bottom: 3px;
+    }
+
+    .empty-step-card p {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    /* SPLIT VIEW CONTAINER */
+    .split-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .list-column-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100%;
+    }
+
+    /* STICKY LIST HEADER BAR (Penting untuk 10-30+ item agar kolom tetap jelas) */
+    .list-sticky-bar {
+      padding: 7px 14px;
+      background: var(--surface-muted);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+    }
+
+    .lsb-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .lsb-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .kbd-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      color: var(--text-muted);
+      background: #fff;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .items-list-pane {
+      flex: 1;
+      padding: 10px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* ITEM CARD: Read Left-to-Right, Dirancang tahan 30+ item tanpa pecah */
+    .item-card {
+      background: #fff;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
+      box-shadow: var(--shadow-thin);
+      display: grid;
+      grid-template-columns: 148px minmax(180px, 1.15fr) minmax(270px, 1.85fr) 138px;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color var(--transition-quiet), background var(--transition-quiet);
+    }
+
+    /* ADAPTIVE MASTER-LIST MODE:
+       Saat panel detail kanan terbuka, sembunyikan 3 kotak history yang lebar di daftar kiri
+       dan tampilkan ringkasan status yang rapi agar nama barang TIDAK tergencet! */
+    .split-container.detail-open .item-card {
+      grid-template-columns: 138px minmax(160px, 1fr) 145px 120px;
+      gap: 8px;
+    }
+
+    .split-container.detail-open .ic-history-full {
+      display: none;
+    }
+
+    .ic-history-compact-summary {
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .split-container.detail-open .ic-history-compact-summary {
+      display: flex;
+    }
+
+    /* Mode Ultra-Compact untuk layar 30 item */
+    .items-list-pane.compact-mode .item-card {
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+    }
+    .items-list-pane.compact-mode .ic-context {
+      display: none;
+    }
+    .items-list-pane.compact-mode .hmc-name {
+      display: none;
+    }
+
+    /* Mode Expand-All: Menampilkan seluruh 3 history lengkap di bawah baris item (cocok untuk baca semua 30 item tanpa klik) */
+    .item-expanded-history {
+      display: none;
+      grid-column: 1 / -1;
+      margin-top: 6px;
+      padding-top: 7px;
+      border-top: 1px dashed var(--border-subtle);
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .items-list-pane.expand-all-mode .item-expanded-history {
+      display: grid;
+    }
+    .items-list-pane.expand-all-mode .ic-history-full {
+      display: none;
+    }
+    .items-list-pane.expand-all-mode .item-card {
+      grid-template-columns: 150px 1fr 150px;
+    }
+
+    .item-card:hover {
+      border-color: var(--border-strong);
+      background: var(--surface-hover);
+    }
+
+    .item-card.selected {
+      border-color: var(--plum-800);
+      background: var(--plum-50);
+      box-shadow: 0 0 0 1px var(--plum-800), var(--shadow-thin);
+    }
+
+    /* Col 1: Identity & Badges */
+    .ic-identity {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .ic-code-row {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .ic-index {
+      font-size: 9.5px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--surface-muted);
+      padding: 1.5px 5px;
+      border-radius: 4px;
+    }
+
+    .ic-code {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--plum-800);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .badge-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 1.5px 6px;
+      border-radius: 99px;
+      font-size: 9.5px;
+      font-weight: 700;
+      width: fit-content;
+      white-space: nowrap;
+    }
+
+    .badge-ok { background: var(--status-ok-bg); color: var(--status-ok-text); }
+    .badge-warn { background: var(--status-warn-bg); color: var(--status-warn-text); }
+    .badge-none { background: var(--status-none-bg); color: var(--status-none-text); }
+
+    /* Col 2: Item Name & Context */
+    .ic-main { min-width: 0; }
+    .ic-name {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ic-context {
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      margin-top: 2px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Col 3: 3 History Strip */
+    .ic-history-full {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .hist-mini-card {
+      background: var(--surface-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 4px 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .hmc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .hmc-date {
+      font-size: 9.5px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .hmc-qty {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--plum-800);
+      white-space: nowrap;
+    }
+
+    .hmc-name {
+      font-size: 9.5px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .no-history-banner {
+      grid-column: 1 / -1;
+      padding: 5px 9px;
+      border-radius: 6px;
+      background: var(--status-none-bg);
+      border: 1px dashed #cbb5cc;
+      color: var(--status-none-text);
+      font-size: 10.5px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    /* Col 4: Requested Qty & Action */
+    .ic-figure-action {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      text-align: right;
+    }
+
+    .ic-req-box {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+    }
+
+    .ic-req-val {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--plum-800);
+      white-space: nowrap;
+    }
+
+    .btn-inspect {
+      padding: 5px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      color: var(--plum-800);
+      font-size: 10.5px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .item-card.selected .btn-inspect,
+    .btn-inspect:hover {
+      background: var(--plum-800);
+      color: #fff;
+      border-color: var(--plum-800);
+    }
+
+    /* RIGHT DETAIL PANE WITH TABS */
+    .detail-pane {
+      width: 0;
+      opacity: 0;
+      border-left: 1px solid var(--border-subtle);
+      background: var(--surface-solid);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transition: width var(--transition-quiet), opacity var(--transition-quiet);
+      flex-shrink: 0;
+    }
+
+    .split-container.detail-open .detail-pane {
+      width: 400px;
+      opacity: 1;
+    }
+
+    .dp-header {
+      padding: 11px 14px;
+      background: var(--plum-50);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .dp-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--plum-800);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+
+    .dp-nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .dp-icon-btn {
+      border: 1px solid var(--border-subtle);
+      background: #fff;
+      color: var(--plum-800);
+      width: 25px;
+      height: 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 11px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dp-icon-btn:hover {
+      background: var(--plum-800);
+      color: #fff;
+    }
+
+    .dp-meta-strip {
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr 0.9fr;
+      gap: 6px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: #fff;
+    }
+
+    .dp-meta-box {
+      background: var(--surface-muted);
+      padding: 5px 8px;
+      border-radius: 6px;
+      min-width: 0;
+    }
+
+    .dp-meta-val {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--plum-800);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dp-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 14px;
+      background: #fff;
+      gap: 14px;
+    }
+
+    .dp-tab {
+      padding: 8px 2px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      border: none;
+      background: transparent;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+    }
+
+    .dp-tab.active {
+      color: var(--plum-800);
+      border-bottom-color: var(--plum-800);
+    }
+
+    .dp-body {
+      padding: 12px 14px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .history-detail-card {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 9px 11px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      box-shadow: var(--shadow-thin);
+    }
+
+    .hdc-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hdc-rank {
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--plum-100);
+      color: var(--plum-800);
+    }
+
+    .hdc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding-top: 4px;
+      border-top: 1px dashed var(--border-subtle);
+    }
+
+    .code-pre {
+      background: #231624;
+      color: #f8e9f2;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      font-size: 10.5px;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+
+    /* MODAL */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(36, 14, 38, 0.45);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      width: 560px;
+      max-width: 92vw;
+      background: var(--surface-solid);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-float);
+      border: 1px solid var(--border-subtle);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background: var(--plum-800);
+      color: #fff;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-body {
+      padding: 15px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--surface-muted);
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    /* Responsive safety for 1366px laptops */
+    @media (max-width: 1400px) {
+      .workspace-grid {
+        grid-template-columns: 275px 1fr;
+      }
+      .split-container.detail-open .detail-pane {
+        width: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+  <!-- THIN ICON RAIL -->
+  <aside class="icon-rail">
+    <div class="rail-brand" title="History Supply Checker">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+        <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+        <path d="M2 17l10 5 10-5"/>
+        <path d="M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+
+    <button class="rail-btn active" title="Operations Desk">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </button>
+
+    <button class="rail-btn" title="Paste / Test Raw JSON from n8n" onclick="openJsonTesterModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="16 18 22 12 16 6"/>
+        <polyline points="8 6 2 12 8 18"/>
+      </svg>
+    </button>
+
+    <div class="rail-spacer"></div>
+
+    <button class="rail-btn" title="n8n Webhook Settings" onclick="openWebhookModal()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </aside>
+
+  <!-- MAIN DESK AREA -->
+  <main class="desk-area">
+    <!-- TOP HEADER -->
+    <header class="top-header">
+      <div class="title-group">
+        <div class="title-badge">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+          </svg>
+        </div>
+        <div class="title-text">
+          <h1>History Supply Checker</h1>
+          <p>AI requisition scan audit via DeepSeek &amp; last 3 supply history lookup from Google Sheets.</p>
+        </div>
+      </div>
+
+      <div class="header-right">
+        <div id="loadingPill" class="loading-pill">
+          <span class="pill-dot"></span>
+          <span id="loadingPillText">Syncing...</span>
+        </div>
+
+        <div class="greeting-box">
+          <div class="greet">Good afternoon, NICO ☀️</div>
+          <div class="date-str" id="liveDateStr">Sunday, October 25, 2026</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- WORKSPACE -->
+    <div class="workspace-grid">
+
+      <!-- ================= BAGIAN KIRI: INPUT ================= -->
+      <section class="left-panel">
+        <div class="left-panel-header">
+          <div class="lh-left">
+            <div class="lh-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="lh-title">Verification &amp; Input</div>
+              <div class="lh-sub">n8n + DeepSeek Engine</div>
+            </div>
+          </div>
+          <span id="modeBadge" class="lh-badge mono">SIMULATION</span>
+        </div>
+
+        <div class="left-panel-body">
+          <!-- Step 1: Vessel & Tanggal -->
+          <div class="input-section">
+            <div class="step-header">
+              <div class="step-title">
+                <span class="step-num">1</span>
+                <span>Header Info</span>
+              </div>
+              <span class="pill-tag">Manual / Extracted</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="field-box">
+                <label class="label-caps" for="vesselInput">Vessel (Opsional)</label>
+                <input id="vesselInput" class="input-control" type="text" placeholder="Auto-extract / isi manual" value="MT. SAMUDRA NUSANTARA" />
+              </div>
+              <div class="field-box">
+                <label class="label-caps" for="reqDateInput">Tgl Request</label>
+                <input id="reqDateInput" class="input-control num" type="date" value="2026-10-25" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Step 2: Upload PDF -->
+          <div class="input-section">
+            <div class="step-header">
+              <div class="step-title">
+                <span class="step-num">2</span>
+                <span>Form Permintaan (PDF)</span>
+              </div>
+              <span class="pill-tag">10–30+ Items OK</span>
+            </div>
+
+            <div id="dropzone" class="dropzone">
+              <input type="file" id="pdfFileInput" accept=".pdf,application/pdf" />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--plum-700)" stroke-width="1.9">
+                <path d="M16 16l-4-4-4 4"/>
+                <path d="M12 12v9"/>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+              </svg>
+              <div class="dz-main">Click to choose or drop PDF scan</div>
+              <div class="dz-sub">Mendukung dokumen panjang (10–30+ baris barang)</div>
+              <div id="selectedFileChip" class="file-selected-chip mono">
+                📄 REQ-SN-2026-22ITEMS-FULL.pdf
+              </div>
+            </div>
+
+            <!-- Preset Uji Coba (Termasuk Stress Test 22 Item!) -->
+            <div class="field-box" style="margin-top:2px;">
+              <span class="label-caps">Uji Skenario Jumlah Item</span>
+              <div class="demo-presets">
+                <button type="button" class="preset-btn active" onclick="selectPreset('samudra22', this)">22 Items (Full Form)</button>
+                <button type="button" class="preset-btn" onclick="selectPreset('samudra6', this)">6 Items (Ringkas)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tombol Utama -->
+          <button id="btnProcess" class="btn-deepseek" onclick="runDeepSeekProcess()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+            <span>Process with DeepSeek</span>
+          </button>
+
+          <!-- Status Proses -->
+          <div class="input-section" style="margin-top:auto;">
+            <div class="step-header">
+              <span class="label-caps">Status Proses</span>
+              <span id="pipelineTimer" class="mono" style="font-size:10px;color:var(--text-secondary);">Ready</span>
+            </div>
+
+            <div class="status-tracker">
+              <div class="st-row" id="st-upload">
+                <div class="st-left"><span class="st-dot"></span><span>Uploading PDF to n8n</span></div>
+                <span class="mono" id="st-upload-meta">—</span>
+              </div>
+              <div class="st-row" id="st-extract">
+                <div class="st-left"><span class="st-dot"></span><span>Extracting (DeepSeek)</span></div>
+                <span class="mono" id="st-extract-meta">—</span>
+              </div>
+              <div class="st-row" id="st-lookup">
+                <div class="st-left"><span class="st-dot"></span><span>Looking up history (Sheets)</span></div>
+                <span class="mono" id="st-lookup-meta">—</span>
+              </div>
+              <div class="st-row" id="st-done">
+                <div class="st-left"><span class="st-dot"></span><span>Done</span></div>
+                <span class="mono" id="st-done-meta">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= BAGIAN KANAN: HASIL ================= -->
+      <section class="right-desk">
+
+        <!-- SUMMARY CARDS ROW -->
+        <div class="summary-row">
+          <div class="summary-card">
+            <div class="sc-info">
+              <div class="label-caps">Vessel Name</div>
+              <div class="sc-value" id="sumVessel">—</div>
+              <div class="sc-sub" id="sumVesselSub">Waiting for PDF</div>
+            </div>
+            <div class="sc-badge">🚢</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="sc-info">
+              <div class="label-caps">Tanggal Request</div>
+              <div class="sc-value num" id="sumReqDate">—</div>
+              <div class="sc-sub" id="sumReqRef">Requisition Date</div>
+            </div>
+            <div class="sc-badge">📅</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="sc-info">
+              <div class="label-caps">Total Item Diminta</div>
+              <div class="sc-value num" id="sumTotalItems">0</div>
+              <div class="sc-sub" id="sumTotalUnits">0 total qty requested</div>
+            </div>
+            <div class="sc-badge">📦</div>
+          </div>
+
+          <div class="summary-card">
+            <div class="sc-info">
+              <div class="label-caps">Cakupan History</div>
+              <div class="sc-value num" id="sumHistoryMatch">0 / 0</div>
+              <div class="sc-sub" id="sumNoHistoryCount">0 item tanpa history</div>
+            </div>
+            <div class="sc-badge">📊</div>
+          </div>
+        </div>
+
+        <!-- SINGLE-LINE FILTER BAR -->
+        <div class="filter-bar">
+          <!-- Mode / Category -->
+          <div class="fb-seg">
+            <button class="active" onclick="setCategoryFilter('ALL', this)">All (<span id="cntAll" class="num">0</span>)</button>
+            <button onclick="setCategoryFilter('HAS_HISTORY', this)">Ada History (<span id="cntHas" class="num">0</span>)</button>
+            <button onclick="setCategoryFilter('NO_HISTORY', this)">No History (<span id="cntNone" class="num">0</span>)</button>
+          </div>
+
+          <!-- Search -->
+          <div class="fb-search">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input type="text" id="searchFilter" placeholder="Cari Item Code, Item Name, atau History..." oninput="applyFilters()" />
+          </div>
+
+          <!-- Dates or Range -->
+          <select id="dateRangeFilter" class="fb-select num" onchange="applyFilters()">
+            <option value="ALL">History: All Years</option>
+            <option value="2026">Supply 2026</option>
+            <option value="2025">Supply 2025</option>
+            <option value="2024">Supply 2024</option>
+          </select>
+
+          <!-- Attention Flag -->
+          <button id="btnFlagFilter" class="fb-btn" onclick="toggleAttentionFlag()" title="Tampilkan item tanpa history atau Qty naik tajam dibanding history">
+            ⚠️ Attention
+          </button>
+
+          <!-- Sort -->
+          <select id="sortSelect" class="fb-select" onchange="applyFilters()">
+            <option value="INDEX">Urutan Form</option>
+            <option value="NO_HIST_FIRST">No History Dulu</option>
+            <option value="QTY_DESC">Qty Tertinggi</option>
+            <option value="CODE_ASC">Item Code A–Z</option>
+          </select>
+
+          <!-- Density Toggle (Solusi untuk 10-30 item!) -->
+          <select id="densitySelect" class="fb-select" onchange="changeDensityMode(this.value)" title="Atur tampilan untuk dokumen 10-30 item">
+            <option value="STANDARD">☷ Card View</option>
+            <option value="COMPACT">☰ Compact (20–30 Item)</option>
+            <option value="EXPAND_ALL">▤ Buka Semua History</option>
+          </select>
+
+          <!-- Refresh -->
+          <button class="fb-btn" onclick="refreshCurrentData()" title="Muat ulang">↻</button>
+
+          <!-- Primary Actions -->
+          <button class="fb-btn" onclick="exportCsvExcel()" title="Download CSV untuk dibuka di Excel">
+            ↓ CSV/Excel
+          </button>
+          <button class="fb-btn primary-action" onclick="openWebhookModal()">
+            ⚙️ n8n URL
+          </button>
+        </div>
+
+        <!-- RESULTS STAGE -->
+        <div class="results-stage">
+
+          <!-- EMPTY STATE -->
+          <div id="emptyStage" class="empty-stage">
+            <div class="empty-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <circle cx="11.5" cy="14.5" r="2.5"/>
+                <line x1="13.3" y1="16.3" x2="15" y2="18"/>
+              </svg>
+            </div>
+            <h2>No data yet</h2>
+            <p>Upload scan PDF permintaan di panel kiri lalu klik <strong>Process with DeepSeek</strong> (atau coba preset <strong>22 Items</strong>).</p>
+
+            <div class="empty-steps-grid">
+              <div class="empty-step-card">
+                <div class="esc-top">
+                  <div class="esc-icon">1</div>
+                  <span class="label-caps">STEP 1</span>
+                </div>
+                <h4>Upload PDF ke n8n</h4>
+                <p>Mendukung form 10–30+ item sekaligus. File dikirim ke Webhook n8n.</p>
+              </div>
+
+              <div class="empty-step-card">
+                <div class="esc-top">
+                  <div class="esc-icon">2</div>
+                  <span class="label-caps">STEP 2</span>
+                </div>
+                <h4>Ekstraksi DeepSeek</h4>
+                <p>DeepSeek mengekstrak Vessel, Tanggal Request, serta daftar Item Code, Item Name &amp; Qty.</p>
+              </div>
+
+              <div class="empty-step-card">
+                <div class="esc-top">
+                  <div class="esc-icon">3</div>
+                  <span class="label-caps">STEP 3</span>
+                </div>
+                <h4>3 History Google Sheet</h4>
+                <p>Menampilkan 3 riwayat supply terakhir per Item Code atau <em>"No previous supply found"</em>.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- SPLIT VIEW CONTAINER -->
+          <div id="splitContainer" class="split-container" style="display:none;">
+            <div class="list-column-wrapper">
+              <!-- Sticky Info & Keyboard Navigation Hint -->
+              <div class="list-sticky-bar">
+                <div class="lsb-left">
+                  <strong id="showingCountText" class="num" style="color:var(--plum-800);">Showing 0 items</strong>
+                  <span>•</span>
+                  <span>Klik item untuk buka rincian di kanan</span>
+                </div>
+                <div class="lsb-right">
+                  <span class="kbd-hint"><strong class="mono">↑</strong> <strong class="mono">↓</strong> Pindah Item Cepat</span>
+                  <span class="kbd-hint"><strong class="mono">ESC</strong> Tutup Detail</span>
+                </div>
+              </div>
+
+              <!-- Scrollable List Pane -->
+              <div id="itemsListPane" class="items-list-pane"></div>
+            </div>
+
+            <!-- Right Detail Pane with Tabs -->
+            <aside id="detailPane" class="detail-pane">
+              <div class="dp-header">
+                <div style="min-width:0;">
+                  <span class="label-caps" id="dpItemCode">ITEM CODE</span>
+                  <div class="dp-title" id="dpItemName">Pilih item</div>
+                </div>
+                <div class="dp-nav-actions">
+                  <button class="dp-icon-btn" onclick="navigateItem(-1)" title="Item Sebelumnya (Panah Atas)">↑</button>
+                  <button class="dp-icon-btn" onclick="navigateItem(1)" title="Item Berikutnya (Panah Bawah)">↓</button>
+                  <button class="dp-icon-btn" onclick="closeDetailPane()" title="Tutup Detail (ESC)">✕</button>
+                </div>
+              </div>
+
+              <div class="dp-meta-strip">
+                <div class="dp-meta-box">
+                  <div class="label-caps">Vessel Name</div>
+                  <div class="dp-meta-val" id="dpVessel">—</div>
+                </div>
+                <div class="dp-meta-box">
+                  <div class="label-caps">Tgl Request</div>
+                  <div class="dp-meta-val num" id="dpReqDate">—</div>
+                </div>
+                <div class="dp-meta-box">
+                  <div class="label-caps">Qty Diminta</div>
+                  <div class="dp-meta-val num" id="dpReqQty">—</div>
+                </div>
+              </div>
+
+              <div class="dp-tabs">
+                <button class="dp-tab active" onclick="switchDetailTab('HISTORY', this)">3 History Terakhir</button>
+                <button class="dp-tab" onclick="switchDetailTab('COMPARE', this)">Ringkasan Audit</button>
+                <button class="dp-tab" onclick="switchDetailTab('JSON', this)">Raw JSON</button>
+              </div>
+
+              <div id="dpBody" class="dp-body"></div>
+            </aside>
+          </div>
+
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL 1: N8N WEBHOOK CONFIG -->
+<div id="webhookModal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div style="font-weight:700;font-size:13.5px;">⚙️ Konfigurasi n8n Webhook &amp; Format Data</div>
+      <button onclick="closeWebhookModal()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:15px;">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="field-box">
+        <label class="label-caps" for="webhookUrlInput">n8n Webhook URL (POST Multipart / JSON)</label>
+        <input id="webhookUrlInput" class="input-control mono" type="url" placeholder="https://n8n.domainkamu.com/webhook/history-supply-checker" />
+        <span style="font-size:10px;color:var(--text-secondary);margin-top:2px;">
+          URL otomatis tersimpan di browser (<code>localStorage</code>). Kosongkan jika ingin memakai mode simulasi.
+        </span>
+      </div>
+
+      <div class="label-caps" style="margin-top:4px;">Smart JSON Parser (Tahan Segala Variasi Output n8n)</div>
+      <div class="flow-step">
+        <span>Parser web ini otomatis mengenali field meskipun n8n mengirim <code>vessel</code> atau <code>vessel_name</code>, <code>request_date</code> atau <code>tanggal_request</code>, <code>item_code</code> atau <code>kode_barang</code>, serta <code>history</code> atau <code>last_3_history</code>.</span>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;">
+        <button class="fb-btn" onclick="clearSavedCache()">🗑️ Reset Cache Data</button>
+        <button class="fb-btn primary-action" onclick="saveWebhookConfig()">Simpan &amp; Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL 2: PASTE RAW JSON TESTER (Untuk mengetes output n8n secara langsung) -->
+<div id="jsonTesterModal" class="modal-backdrop">
+  <div class="modal-card">
+    <div class="modal-header">
+      <div style="font-weight:700;font-size:13.5px;">{ } Uji Paste JSON Balikan dari n8n</div>
+      <button onclick="closeJsonTesterModal()" style="background:none;border:none;color:#fff;cursor:pointer;font-size:15px;">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:11px;color:var(--text-secondary);">
+        Copy-paste JSON hasil <em>Respond to Webhook</em> dari n8n di bawah ini untuk menguji tampilan langsung tanpa perlu upload PDF:
+      </p>
+      <textarea id="rawJsonTextarea" class="input-control mono" rows="10" placeholder='{"vessel_name": "MT. CONTOH", "request_date": "2026-10-25", "items": [...]}'></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:8px;">
+        <button class="fb-btn" onclick="closeJsonTesterModal()">Batal</button>
+        <button class="fb-btn primary-action" onclick="loadFromRawJson()">Render JSON ke Layar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ================= GENERATOR DATASET 22 ITEM (STRESS TEST 10-30 ITEM) =================
+  const BASE_6_ITEMS = [
+    {
+      item_code: "LUB-ME-001",
+      item_name: "SHELL GADINIA S3 40 (MAIN ENGINE SYSTEM OIL)",
+      qty_requested: 1200,
+      unit: "LTRS",
+      history: [
+        { supply_date: "2026-08-14", qty_supplied: 1000, item_name: "SHELL GADINIA S3 40 - DRUM 209L" },
+        { supply_date: "2026-05-02", qty_supplied: 1000, item_name: "SHELL GADINIA S3 40 MAIN ENGINE OIL" },
+        { supply_date: "2026-01-19", qty_supplied: 800,  item_name: "GADINIA S3 40 SHELL LUBRICANT" }
+      ]
+    },
+    {
+      item_code: "FLT-FO-104",
+      item_name: "FUEL OIL DUPLEX FILTER ELEMENT 25 MICRON",
+      qty_requested: 12,
+      unit: "PCS",
+      history: [
+        { supply_date: "2026-09-03", qty_supplied: 6, item_name: "FO DUPLEX FILTER ELEMENT 25M" },
+        { supply_date: "2026-04-21", qty_supplied: 6, item_name: "FUEL OIL FILTER ELEMENT 25 MICRON" },
+        { supply_date: "2025-11-11", qty_supplied: 8, item_name: "FO FILTER CARTRIDGE 25 MICRON" }
+      ]
+    },
+    {
+      item_code: "VLV-GL-210",
+      item_name: "BRONZE GLOBE VALVE JIS 5K DN50",
+      qty_requested: 4,
+      unit: "UNIT",
+      history: [] // Tidak ada history
+    },
+    {
+      item_code: "DCK-MR-055",
+      item_name: "MOORING ROPE POLYPROPYLENE 8-STRAND 64MM X 220M",
+      qty_requested: 2,
+      unit: "COILS",
+      history: [
+        { supply_date: "2026-03-18", qty_supplied: 2, item_name: "PP MOORING ROPE 64MM 220M 8-STRAND" },
+        { supply_date: "2025-07-09", qty_supplied: 1, item_name: "MOORING HAWSER 64MM X 220M CERT" },
+        { supply_date: "2024-12-04", qty_supplied: 2, item_name: "POLYPROPYLENE ROPE 64MM X 220M" }
+      ]
+    },
+    {
+      item_code: "CHM-CL-019",
+      item_name: "AIR COOLER CLEANER CHEMICAL (DREW ACC-9)",
+      qty_requested: 150,
+      unit: "LTRS",
+      history: [
+        { supply_date: "2026-07-28", qty_supplied: 100, item_name: "DREW ACC-9 AIR COOLER CLEANER 25L PAIL" },
+        { supply_date: "2026-02-10", qty_supplied: 100, item_name: "AIR COOLER CLEANER CHEMICAL ACC-9" }
+      ]
+    },
+    {
+      item_code: "SAF-SC-302",
+      item_name: "SCBA SPARE COMPOSITE CYLINDER 6.8L 300 BAR",
+      qty_requested: 3,
+      unit: "CYL",
+      history: [] // Tidak ada history
+    }
+  ];
+
+  const EXTRA_16_ITEMS = [
+    { item_code: "INJ-NOZ-882", item_name: "FUEL INJECTION NOZZLE TIP YANMAR 6EY18AL", qty_requested: 6, unit: "PCS", history: [
+      { supply_date: "2026-06-12", qty_supplied: 6, item_name: "NOZZLE TIP YANMAR 6EY18AL GENUINE" },
+      { supply_date: "2025-12-01", qty_supplied: 3, item_name: "FUEL INJECTOR NOZZLE 6EY18AL" },
+      { supply_date: "2025-05-19", qty_supplied: 6, item_name: "YANMAR 6EY18AL INJECTION NOZZLE" }
+    ]},
+    { item_code: "PNT-AF-401", item_name: "JOTUN SEAQUANTUM ULTRA S ANTIFOULING RED 20L", qty_requested: 18, unit: "PAILS", history: [
+      { supply_date: "2026-04-05", qty_supplied: 15, item_name: "JOTUN SEAQUANTUM ULTRA S DARK RED 20L" },
+      { supply_date: "2025-08-22", qty_supplied: 12, item_name: "SEAQUANTUM ANTIFOULING PAINT 20L" },
+      { supply_date: "2025-01-14", qty_supplied: 15, item_name: "JOTUN ANTIFOULING RED 20L PAIL" }
+    ]},
+    { item_code: "ELC-SEN-904", item_name: "PT100 EXHAUST GAS TEMPERATURE SENSOR L=250MM", qty_requested: 4, unit: "PCS", history: [] },
+    { item_code: "GSK-EX-112", item_name: "SPIRAL WOUND GASKET JIS 10K 150A SUS316", qty_requested: 20, unit: "PCS", history: [
+      { supply_date: "2026-09-15", qty_supplied: 10, item_name: "SW GASKET JIS 10K 150A SS316" },
+      { supply_date: "2026-03-02", qty_supplied: 10, item_name: "SPIRAL WOUND GASKET 150A 10K" },
+      { supply_date: "2025-09-29", qty_supplied: 12, item_name: "GASKET SPIRAL WOUND JIS10K DN150" }
+    ]},
+    { item_code: "DCK-TW-008", item_name: "CONTAINER TWISTLOCK SEMI-AUTOMATIC LEFT HAND", qty_requested: 50, unit: "PCS", history: [
+      { supply_date: "2026-07-01", qty_supplied: 40, item_name: "SEMI-AUTO TWISTLOCK BF-SA01" },
+      { supply_date: "2025-10-18", qty_supplied: 30, item_name: "CONTAINER TWISTLOCK SEMI AUTO" },
+      { supply_date: "2025-02-25", qty_supplied: 40, item_name: "TWISTLOCK SEMI-AUTOMATIC GALV" }
+    ]},
+    { item_code: "PMP-MS-331", item_name: "MECHANICAL SEAL FOR SEA WATER COOLING PUMP", qty_requested: 2, unit: "SETS", history: [
+      { supply_date: "2026-01-22", qty_supplied: 2, item_name: "MECH SEAL SW COOLING PUMP SHINKO" },
+      { supply_date: "2025-04-10", qty_supplied: 1, item_name: "MECHANICAL SEAL SIC/SIC VITON" }
+    ]},
+    { item_code: "BRG-DP-621", item_name: "SKF DEEP GROOVE BALL BEARING 6314-2Z/C3", qty_requested: 8, unit: "PCS", history: [
+      { supply_date: "2026-08-01", qty_supplied: 4, item_name: "BALL BEARING SKF 6314-2Z C3" },
+      { supply_date: "2025-11-20", qty_supplied: 4, item_name: "SKF 6314-2Z/C3 BEARING" },
+      { supply_date: "2025-03-15", qty_supplied: 4, item_name: "BEARING 6314-2Z C3 SKF ORIGINAL" }
+    ]},
+    { item_code: "ELC-LMP-209", item_name: "MARINE EXPLOSION PROOF LED FLOODLIGHT 100W AC220V", qty_requested: 6, unit: "PCS", history: [] },
+    { item_code: "WLD-EL-077", item_name: "WELDING ELECTRODE KOBE LB-52U 3.2MM (5KG/PACK)", qty_requested: 10, unit: "PACKS", history: [
+      { supply_date: "2026-07-11", qty_supplied: 10, item_name: "KOBELCO LB-52U 3.2MM WELDING ROD" },
+      { supply_date: "2026-02-05", qty_supplied: 8,  item_name: "ELECTRODE LB-52U 3.2MM X 350MM" },
+      { supply_date: "2025-08-19", qty_supplied: 10, item_name: "WELDING ROD KOBE LB52U 3.2MM" }
+    ]},
+    { item_code: "SAF-EE-105", item_name: "EEBD 15 MINUTES EMERGENCY ESCAPE BREATHING DEVICE", qty_requested: 4, unit: "SETS", history: [
+      { supply_date: "2025-06-30", qty_supplied: 4, item_name: "EEBD 15 MIN THYSSEN / SOLAS APPROVED" }
+    ]},
+    { item_code: "HOS-HY-512", item_name: "HIGH PRESSURE HYDRAULIC HOSE 3/4 INCH X 4000MM", qty_requested: 4, unit: "PCS", history: [] },
+    { item_code: "LUB-GR-042", item_name: "SHELL GADUS S2 V220 2 MULTIPURPOSE GREASE 18KG", qty_requested: 6, unit: "PAILS", history: [
+      { supply_date: "2026-09-10", qty_supplied: 4, item_name: "SHELL GADUS S2 V220 2 PAIL 18KG" },
+      { supply_date: "2026-05-14", qty_supplied: 4, item_name: "GADUS S2 V220 2 GREASE SHELL" },
+      { supply_date: "2025-12-20", qty_supplied: 4, item_name: "SHELL MULTIPURPOSE GREASE 18KG" }
+    ]},
+    { item_code: "PA-GA-701", item_name: "GLYCERINE FILLED PRESSURE GAUGE 0-25 BAR 100MM", qty_requested: 6, unit: "PCS", history: [
+      { supply_date: "2026-03-29", qty_supplied: 6, item_name: "PRESSURE GAUGE 0-25 BAR DIAL 4 INCH" },
+      { supply_date: "2025-09-12", qty_supplied: 4, item_name: "GLYCERINE PRESSURE GAUGE 25 BAR" },
+      { supply_date: "2025-01-08", qty_supplied: 6, item_name: "SS PRESSURE GAUGE 0-25KG/CM2" }
+    ]},
+    { item_code: "ZN-AN-015", item_name: "ZINC ANODE STREAMLINED BOLT-ON TYPE ZSS-12 (9.5KG)", qty_requested: 24, unit: "PCS", history: [] },
+    { item_code: "CHM-WT-088", item_name: "BOILER WATER TREATMENT CHEMICAL LIQUIDEWT 25L", qty_requested: 4, unit: "PAILS", history: [
+      { supply_date: "2026-08-25", qty_supplied: 4, item_name: "DREW LIQUIDEWT COOLING WATER TREATMENT" },
+      { supply_date: "2026-04-02", qty_supplied: 4, item_name: "LIQUIDEWT 25L PAIL BOILER CHEMICAL" },
+      { supply_date: "2025-10-05", qty_supplied: 3, item_name: "WATER TREATMENT LIQUIDEWT 25 LTR" }
+    ]},
+    { item_code: "TLS-WR-910", item_name: "HEAVY DUTY IMPACT SOCKET WRENCH SET 3/4 DRIVE", qty_requested: 1, unit: "SET", history: [
+      { supply_date: "2024-11-15", qty_supplied: 1, item_name: "IMPACT SOCKET SET 3/4 INCH DR 19-50MM" }
+    ]}
+  ];
+
+  const PRESETS = {
+    samudra22: {
+      vessel_name: "MT. SAMUDRA NUSANTARA",
+      request_date: "2026-10-25",
+      requisition_no: "REQ/SN/X/2026/089-FULL",
+      file_name: "REQ-SN-2026-22ITEMS-FULL.pdf",
+      items: [...BASE_6_ITEMS, ...EXTRA_16_ITEMS]
+    },
+    samudra6: {
+      vessel_name: "MT. SAMUDRA NUSANTARA",
+      request_date: "2026-10-25",
+      requisition_no: "REQ/SN/X/2026/089",
+      file_name: "REQ-SN-2026-6ITEMS.pdf",
+      items: [...BASE_6_ITEMS]
+    }
+  };
+
+  // ================= STATE & STORAGE KEYS =================
+  const STORAGE_KEY_WEBHOOK = 'hsc_n8n_webhook_url_v3';
+  const DEFAULT_N8N_WEBHOOK = 'https://mataram9.app.n8n.cloud/webhook/history-checker';
+  const STORAGE_KEY_LAST_DATA = 'hsc_last_dataset_v3';
+
+  let currentPresetKey = 'samudra22';
+  let activeDataset = null;
+  let currentFilteredItems = [];
+  let selectedItemCode = null;
+  let activeDetailTab = 'HISTORY';
+  let categoryFilter = 'ALL';
+  let attentionOnly = false;
+  let densityMode = 'STANDARD';
+
+  // ================= DEFENSIVE JSON NORMALIZER (Tahan Variasi Output n8n/DeepSeek) =================
+  function normalizeBackendPayload(raw) {
+    if (!raw) throw new Error("Empty payload from n8n");
+
+    // Jika n8n mengembalikan array [{ json: {...} }] atau [{...}]
+    let root = Array.isArray(raw) ? (raw[0]?.json || raw[0]) : (raw.data || raw.output || raw);
+
+    const vesselName = root.vessel_name || root.vessel || root.vesselName || root.kapal ||
+                       document.getElementById('vesselInput').value.trim() || "UNKNOWN VESSEL";
+    const requestDate = root.request_date || root.requestDate || root.tanggal_request || root.date ||
+                        document.getElementById('reqDateInput').value || "—";
+    const reqNo = root.requisition_no || root.req_no || root.reference || "Extracted via DeepSeek";
+    const fileName = root.file_name || "Uploaded Requisition PDF";
+
+    const rawItems = Array.isArray(root.items) ? root.items :
+                     Array.isArray(root.data) ? root.data :
+                     Array.isArray(raw) ? raw : [];
+
+    const normalizedItems = rawItems.map((it, idx) => {
+      const code = String(it.item_code || it.code || it.itemCode || it.kode_barang || `ITEM-${idx + 1}`).trim();
+      const name = String(it.item_name || it.name || it.itemName || it.nama_barang || "Unnamed Item").trim();
+      const qty = Number(it.qty_requested ?? it.qty ?? it.quantity ?? it.jumlah ?? 0);
+      const unit = String(it.unit || it.uom || it.satuan || "PCS").trim();
+
+      let rawHist = it.history || it.last_3_history || it.supply_history || [];
+      if (!Array.isArray(rawHist)) rawHist = [];
+
+      // Sort by supply_date DESC & ambil maksimal 3 history terakhir
+      const cleanHist = rawHist
+        .map(h => ({
+          supply_date: String(h.supply_date || h.date || h.supplyDate || h.tanggal_supply || "—"),
+          qty_supplied: Number(h.qty_supplied ?? h.qty ?? h.quantity ?? h.jumlah_supply ?? 0),
+          item_name: String(h.item_name || h.name || h.itemName || h.nama_barang || name)
+        }))
+        .sort((a, b) => b.supply_date.localeCompare(a.supply_date))
+        .slice(0, 3);
+
+      return {
+        item_code: code,
+        item_name: name,
+        qty_requested: qty,
+        unit: unit,
+        history: cleanHist
+      };
+    });
+
+    return {
+      vessel_name: vesselName,
+      request_date: requestDate,
+      requisition_no: reqNo,
+      file_name: fileName,
+      items: normalizedItems
+    };
+  }
+
+  // ================= INITIALIZATION =================
+  window.addEventListener('DOMContentLoaded', () => {
+    const savedUrl = localStorage.getItem(STORAGE_KEY_WEBHOOK) || DEFAULT_N8N_WEBHOOK;
+    document.getElementById('webhookUrlInput').value = savedUrl;
+    updateModeBadge();
+
+    // Pulihkan hasil terakhir jika user tidak sengaja refresh halaman
+    const savedData = localStorage.getItem(STORAGE_KEY_LAST_DATA);
+    if (savedData) {
+      try {
+        activeDataset = normalizeBackendPayload(JSON.parse(savedData));
+        renderWorkspace();
+        showLoadingPill('Restored last session (' + activeDataset.items.length + ' items)', 1200);
+      } catch (e) {
+        console.warn('Could not restore cached session', e);
+      }
+    }
+  });
+
+  // Navigasi Keyboard (Panah Atas / Bawah untuk pindah item, ESC untuk tutup panel kanan)
+  window.addEventListener('keydown', (e) => {
+    const tag = document.activeElement?.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (!activeDataset || currentFilteredItems.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      navigateItem(1);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      navigateItem(-1);
+    } else if (e.key === 'Escape' && selectedItemCode) {
+      closeDetailPane();
+    }
+  });
+
+  function navigateItem(direction) {
+    if (!currentFilteredItems.length) return;
+    const currentIndex = currentFilteredItems.findIndex(i => i.item_code === selectedItemCode);
+    let nextIndex = 0;
+    if (currentIndex !== -1) {
+      nextIndex = Math.max(0, Math.min(currentFilteredItems.length - 1, currentIndex + direction));
+    }
+    const target = currentFilteredItems[nextIndex];
+    if (target) {
+      openItemDetail(target.item_code, true);
+    }
+  }
+
+  // ================= UI HELPERS =================
+  function showLoadingPill(text, duration = 650) {
+    const pill = document.getElementById('loadingPill');
+    document.getElementById('loadingPillText').textContent = text;
+    pill.classList.add('visible');
+    if (duration > 0) {
+      setTimeout(() => pill.classList.remove('visible'), duration);
+    }
+  }
+
+  function updateModeBadge() {
+    const url = document.getElementById('webhookUrlInput').value.trim();
+    const badge = document.getElementById('modeBadge');
+    badge.textContent = url ? 'N8N LIVE' : 'SIMULATION';
+  }
+
+  // ================= FILE UPLOAD & PRESETS =================
+  const dropzone = document.getElementById('dropzone');
+  const pdfFileInput = document.getElementById('pdfFileInput');
+
+  dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+  dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    if (e.dataTransfer.files?.[0]) handleFileChosen(e.dataTransfer.files[0]);
+  });
+
+  pdfFileInput.addEventListener('change', (e) => {
+    if (e.target.files?.[0]) handleFileChosen(e.target.files[0]);
+  });
+
+  function handleFileChosen(file) {
+    document.getElementById('selectedFileChip').textContent = '📄 ' + file.name;
+    showLoadingPill('PDF siap: ' + file.name, 900);
+  }
+
+  function selectPreset(key, btnEl) {
+    currentPresetKey = key;
+    document.querySelectorAll('.preset-btn').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    const ds = PRESETS[key];
+    document.getElementById('vesselInput').value = ds.vessel_name;
+    document.getElementById('reqDateInput').value = ds.request_date;
+    document.getElementById('selectedFileChip').textContent = '📄 ' + ds.file_name;
+    showLoadingPill(`Preset: ${ds.items.length} items staged`, 700);
+  }
+
+  // ================= PIPELINE STEPPER & PROCESS =================
+  function resetStepper() {
+    ['upload', 'extract', 'lookup', 'done'].forEach(id => {
+      const row = document.getElementById('st-' + id);
+      row.classList.remove('active', 'done', 'error');
+      document.getElementById('st-' + id + '-meta').textContent = '—';
+    });
+  }
+
+  function setStepState(stepId, state, metaText) {
+    const row = document.getElementById('st-' + stepId);
+    row.classList.remove('active', 'done', 'error');
+    if (state) row.classList.add(state);
+    if (metaText !== undefined) document.getElementById('st-' + stepId + '-meta').textContent = metaText;
+  }
+
+  const sleep = (ms) => new Promise(res => setTimeout(res, ms));
+
+  async function runDeepSeekProcess() {
+    const btn = document.getElementById('btnProcess');
+    const webhookUrl = document.getElementById('webhookUrlInput').value.trim();
+    const startTime = performance.now();
+
+    btn.disabled = true;
+    resetStepper();
+    showLoadingPill('Uploading PDF to n8n...', 0);
+
+    try {
+      setStepState('upload', 'active', 'Sending...');
+      await sleep(320);
+      setStepState('upload', 'done', 'OK');
+
+      showLoadingPill('DeepSeek extracting items...', 0);
+      setStepState('extract', 'active', 'LLM OCR');
+
+      let rawResponse = null;
+
+      if (webhookUrl) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 90000); // 90s timeout untuk dokumen 30 item
+
+        const formData = new FormData();
+        formData.append('vessel_name', document.getElementById('vesselInput').value.trim());
+        formData.append('request_date', document.getElementById('reqDateInput').value);
+        if (pdfFileInput.files[0]) {
+          formData.append('file', pdfFileInput.files[0]);
+        }
+
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          body: formData,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        rawResponse = await response.json();
+      } else {
+        await sleep(480);
+        const clone = JSON.parse(JSON.stringify(PRESETS[currentPresetKey]));
+        const manualVessel = document.getElementById('vesselInput').value.trim();
+        const manualDate = document.getElementById('reqDateInput').value;
+        if (manualVessel) clone.vessel_name = manualVessel;
+        if (manualDate) clone.request_date = manualDate;
+        rawResponse = clone;
+      }
+
+      const normalized = normalizeBackendPayload(rawResponse);
+      setStepState('extract', 'done', normalized.items.length + ' items');
+
+      showLoadingPill('Looking up Google Sheet History...', 0);
+      setStepState('lookup', 'active', 'Top 3 DESC');
+      await sleep(380);
+      setStepState('lookup', 'done', 'Matched');
+
+      const elapsed = ((performance.now() - startTime) / 1000).toFixed(2) + 's';
+      document.getElementById('pipelineTimer').textContent = elapsed;
+      setStepState('done', 'done', elapsed);
+
+      activeDataset = normalized;
+      localStorage.setItem(STORAGE_KEY_LAST_DATA, JSON.stringify(normalized));
+
+      // Jika item > 12, jangan buka drawer kanan otomatis agar 3 history terlihat utuh di kartu
+      selectedItemCode = normalized.items.length <= 8 ? (normalized.items[0]?.item_code || null) : null;
+
+      renderWorkspace();
+      showLoadingPill(`Done: ${normalized.items.length} items processed`, 1100);
+    } catch (err) {
+      setStepState('extract', 'error', 'ERR');
+      showLoadingPill('Gagal: ' + err.message, 3000);
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ================= RENDER WORKSPACE & LIST =================
+  function renderWorkspace() {
+    if (!activeDataset) return;
+
+    document.getElementById('emptyStage').style.display = 'none';
+    document.getElementById('splitContainer').style.display = 'flex';
+
+    const items = activeDataset.items;
+    const totalItems = items.length;
+    const totalUnits = items.reduce((acc, it) => acc + Number(it.qty_requested || 0), 0);
+    const withHistory = items.filter(it => it.history && it.history.length > 0).length;
+    const noHistory = totalItems - withHistory;
+
+    document.getElementById('sumVessel').textContent = activeDataset.vessel_name;
+    document.getElementById('sumVesselSub').textContent = 'Ref: ' + activeDataset.requisition_no;
+    document.getElementById('sumReqDate').textContent = activeDataset.request_date;
+    document.getElementById('sumReqRef').textContent = activeDataset.file_name;
+
+    document.getElementById('sumTotalItems').textContent = totalItems;
+    document.getElementById('sumTotalUnits').textContent = totalUnits.toLocaleString() + ' total qty diminta';
+    document.getElementById('sumHistoryMatch').textContent = `${withHistory} / ${totalItems}`;
+    document.getElementById('sumNoHistoryCount').textContent = `${noHistory} item tanpa history`;
+
+    document.getElementById('cntAll').textContent = totalItems;
+    document.getElementById('cntHas').textContent = withHistory;
+    document.getElementById('cntNone').textContent = noHistory;
+
+    applyFilters();
+  }
+
+  function hasQtySpike(item) {
+    if (!item.history || item.history.length === 0) return false;
+    const avg = item.history.reduce((s, h) => s + h.qty_supplied, 0) / item.history.length;
+    return item.qty_requested > avg * 1.25;
+  }
+
+  function applyFilters() {
+    if (!activeDataset) return;
+
+    const q = document.getElementById('searchFilter').value.trim().toLowerCase();
+    const yearFilter = document.getElementById('dateRangeFilter').value;
+    const sortBy = document.getElementById('sortSelect').value;
+
+    let list = activeDataset.items.map((item, idx) => ({ ...item, _origIndex: idx + 1 }));
+
+    if (categoryFilter === 'HAS_HISTORY') {
+      list = list.filter(i => i.history && i.history.length > 0);
+    } else if (categoryFilter === 'NO_HISTORY') {
+      list = list.filter(i => !i.history || i.history.length === 0);
+    }
+
+    if (q) {
+      list = list.filter(i => {
+        const inMain = i.item_code.toLowerCase().includes(q) || i.item_name.toLowerCase().includes(q);
+        const inHist = (i.history || []).some(h => h.item_name.toLowerCase().includes(q) || h.supply_date.includes(q));
+        return inMain || inHist;
+      });
+    }
+
+    if (yearFilter !== 'ALL') {
+      list = list.filter(i => (i.history || []).some(h => h.supply_date.startsWith(yearFilter)));
+    }
+
+    if (attentionOnly) {
+      list = list.filter(i => (!i.history || i.history.length === 0) || hasQtySpike(i));
+    }
+
+    if (sortBy === 'NO_HIST_FIRST') {
+      list.sort((a, b) => (a.history?.length || 0) - (b.history?.length || 0));
+    } else if (sortBy === 'QTY_DESC') {
+      list.sort((a, b) => b.qty_requested - a.qty_requested);
+    } else if (sortBy === 'CODE_ASC') {
+      list.sort((a, b) => a.item_code.localeCompare(b.item_code));
+    } else {
+      list.sort((a, b) => a._origIndex - b._origIndex);
+    }
+
+    currentFilteredItems = list;
+    document.getElementById('showingCountText').textContent =
+      `Showing ${list.length} of ${activeDataset.items.length} items`;
+
+    renderItemsList(list);
+  }
+
+  function renderItemsList(items) {
+    const pane = document.getElementById('itemsListPane');
+    pane.innerHTML = '';
+
+    if (items.length === 0) {
+      pane.innerHTML = `<div style="padding:32px;text-align:center;color:var(--text-secondary);">Tidak ada item yang sesuai dengan filter pencarian.</div>`;
+      return;
+    }
+
+    items.forEach(item => {
+      const hist = (item.history || []).slice(0, 3);
+      const spike = hasQtySpike(item);
+
+      let badgeHtml = '';
+      if (hist.length === 0) {
+        badgeHtml = `<span class="badge-status badge-none">No History</span>`;
+      } else if (spike) {
+        badgeHtml = `<span class="badge-status badge-warn">⚠️ Qty +Spike (${hist.length})</span>`;
+      } else {
+        badgeHtml = `<span class="badge-status badge-ok">✓ ${hist.length}&nbsp;History</span>`;
+      }
+
+      // Tampilan 3 History saat panel detail tertutup (Full Strip)
+      let historyFullHtml = '';
+      // Tampilan ringkas saat panel detail kanan terbuka (agar tidak tergencet)
+      let historyCompactSummaryHtml = '';
+
+      if (hist.length === 0) {
+        historyFullHtml = `
+          <div class="no-history-banner">
+            <span>🔍 No previous supply found</span>
+          </div>
+        `;
+        historyCompactSummaryHtml = `
+          <span class="label-caps">Last Supply</span>
+          <span style="font-size:11px;font-weight:600;color:var(--status-none-text);">No previous supply found</span>
+        `;
+      } else {
+        historyFullHtml = hist.map((h, idx) => `
+          <div class="hist-mini-card" title="Supply #${idx + 1}: ${h.item_name} (${h.supply_date})">
+            <div class="hmc-top">
+              <span class="hmc-date num">${h.supply_date}</span>
+              <span class="hmc-qty num">${h.qty_supplied.toLocaleString()}&nbsp;${item.unit}</span>
+            </div>
+            <div class="hmc-name">${h.item_name}</div>
+          </div>
+        `).join('');
+
+        const latest = hist[0];
+        historyCompactSummaryHtml = `
+          <span class="label-caps">Terakhir (${latest.supply_date})</span>
+          <span class="num" style="font-size:11.5px;font-weight:700;color:var(--plum-800);">
+            ${latest.qty_supplied.toLocaleString()} ${item.unit} <small style="font-weight:500;color:var(--text-secondary);">(${hist.length}x)</small>
+          </span>
+        `;
+      }
+
+      // Baris tambahan untuk mode "Buka Semua History" (Expand All)
+      const expandedRowHtml = hist.length === 0
+        ? `<div class="no-history-banner">🔍 No previous supply found</div>`
+        : hist.map((h, idx) => `
+            <div class="hist-mini-card">
+              <div class="hmc-top">
+                <span class="hmc-date num"><strong>#${idx + 1}</strong> • ${h.supply_date}</span>
+                <span class="hmc-qty num">${h.qty_supplied.toLocaleString()} ${item.unit}</span>
+              </div>
+              <div style="font-size:10.5px;color:var(--text-primary);font-weight:600;margin-top:2px;">${h.item_name}</div>
+            </div>
+          `).join('');
+
+      const card = document.createElement('div');
+      card.id = 'row-' + item.item_code;
+      card.className = 'item-card' + (selectedItemCode === item.item_code ? ' selected' : '');
+      card.onclick = () => openItemDetail(item.item_code, false);
+
+      card.innerHTML = `
+        <!-- Col 1: Item Code & Badge -->
+        <div class="ic-identity">
+          <div class="ic-code-row">
+            <span class="ic-index num">#${String(item._origIndex).padStart(2, '0')}</span>
+            <span class="ic-code mono" title="${item.item_code}">${item.item_code}</span>
+          </div>
+          ${badgeHtml}
+        </div>
+
+        <!-- Col 2: Item Name, Vessel & Request Date -->
+        <div class="ic-main">
+          <div class="ic-name" title="${item.item_name}">${item.item_name}</div>
+          <div class="ic-context">
+            <span>🚢 ${activeDataset.vessel_name}</span>
+            <span>•</span>
+            <span class="num">📅 ${activeDataset.request_date}</span>
+          </div>
+        </div>
+
+        <!-- Col 3A: 3 History Terakhir (Aktif saat detail kanan tertutup) -->
+        <div class="ic-history-full">
+          ${historyFullHtml}
+        </div>
+
+        <!-- Col 3B: Compact Summary (Aktif saat detail kanan terbuka agar tidak tergencet) -->
+        <div class="ic-history-compact-summary">
+          ${historyCompactSummaryHtml}
+        </div>
+
+        <!-- Col 4: Qty yang Diminta + Tombol -->
+        <div class="ic-figure-action">
+          <div class="ic-req-box">
+            <span class="label-caps">Qty Diminta</span>
+            <span class="ic-req-val num">${item.qty_requested.toLocaleString()}&nbsp;<small style="font-size:9.5px;color:var(--text-secondary);">${item.unit}</small></span>
+          </div>
+          <button class="btn-inspect" type="button">Detail&nbsp;→</button>
+        </div>
+
+        <!-- Baris Expand All (Hanya muncul jika mode 'Buka Semua History' dipilih) -->
+        <div class="item-expanded-history">
+          ${expandedRowHtml}
+        </div>
+      `;
+
+      pane.appendChild(card);
+    });
+
+    const split = document.getElementById('splitContainer');
+    if (selectedItemCode) {
+      const found = activeDataset.items.find(x => x.item_code === selectedItemCode);
+      if (found) {
+        split.classList.add('detail-open');
+        renderDetailPane(found);
+      } else {
+        split.classList.remove('detail-open');
+      }
+    } else {
+      split.classList.remove('detail-open');
+    }
+  }
+
+  // ================= DETAIL PANE =================
+  function openItemDetail(itemCode, scrollIntoView = false) {
+    selectedItemCode = itemCode;
+    applyFilters();
+
+    if (scrollIntoView) {
+      const rowEl = document.getElementById('row-' + itemCode);
+      if (rowEl) rowEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  function closeDetailPane() {
+    selectedItemCode = null;
+    document.getElementById('splitContainer').classList.remove('detail-open');
+    document.querySelectorAll('.item-card').forEach(c => c.classList.remove('selected'));
+  }
+
+  function switchDetailTab(tabKey, btnEl) {
+    activeDetailTab = tabKey;
+    document.querySelectorAll('.dp-tab').forEach(t => t.classList.remove('active'));
+    btnEl.classList.add('active');
+    const item = activeDataset?.items.find(x => x.item_code === selectedItemCode);
+    if (item) renderDetailPane(item);
+  }
+
+  function renderDetailPane(item) {
+    document.getElementById('dpItemCode').textContent = `ITEM CODE: ${item.item_code}`;
+    document.getElementById('dpItemName').textContent = item.item_name;
+    document.getElementById('dpVessel').textContent = activeDataset.vessel_name;
+    document.getElementById('dpReqDate').textContent = activeDataset.request_date;
+    document.getElementById('dpReqQty').textContent = `${item.qty_requested.toLocaleString()} ${item.unit}`;
+
+    const body = document.getElementById('dpBody');
+    const hist = (item.history || []).slice(0, 3);
+
+    if (activeDetailTab === 'HISTORY') {
+      if (hist.length === 0) {
+        body.innerHTML = `
+          <div class="no-history-banner" style="padding:14px;justify-content:center;font-size:12px;">
+            🔍 No previous supply found
+          </div>
+          <div style="font-size:11px;color:var(--text-secondary);line-height:1.5;">
+            Item Code <strong class="mono">${item.item_code}</strong> belum memiliki riwayat pengiriman pada Google Sheet History untuk kapal <strong>${activeDataset.vessel_name}</strong>.
+          </div>
+        `;
+      } else {
+        body.innerHTML = `
+          <div class="label-caps">3 History Terakhir (Urut Supply Date DESC)</div>
+          ${hist.map((h, idx) => {
+            const diff = item.qty_requested - h.qty_supplied;
+            const diffBadge = diff === 0
+              ? '<span style="color:var(--status-ok-text);">Sama persis</span>'
+              : (diff > 0
+                  ? `<span style="color:var(--status-warn-text);">+${diff.toLocaleString()} ${item.unit} dari supply ini</span>`
+                  : `<span style="color:var(--status-ok-text);">${diff.toLocaleString()} ${item.unit} dari supply ini</span>`);
+            return `
+              <div class="history-detail-card">
+                <div class="hdc-top">
+                  <span class="hdc-rank">History #${idx + 1}</span>
+                  <span class="mono" style="font-size:11px;color:var(--plum-800);">📅 <strong>${h.supply_date}</strong></span>
+                </div>
+                <div>
+                  <div class="label-caps">Item Name (Dari History)</div>
+                  <div style="font-size:12px;font-weight:700;color:var(--text-primary);margin-top:1px;">${h.item_name}</div>
+                </div>
+                <div class="hdc-grid">
+                  <div>
+                    <div class="label-caps">Qty Pernah Di-Supply</div>
+                    <div class="num" style="font-size:13.5px;font-weight:700;color:var(--plum-800);margin-top:1px;">
+                      ${h.qty_supplied.toLocaleString()} ${item.unit}
+                    </div>
+                  </div>
+                  <div>
+                    <div class="label-caps">Perbandingan Qty</div>
+                    <div class="num" style="font-size:11px;font-weight:600;margin-top:3px;">${diffBadge}</div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        `;
+      }
+    } else if (activeDetailTab === 'COMPARE') {
+      const avg = hist.length
+        ? (hist.reduce((s, h) => s + h.qty_supplied, 0) / hist.length).toFixed(1)
+        : '—';
+      body.innerHTML = `
+        <div class="history-detail-card">
+          <div class="label-caps">Data Permintaan vs Riwayat</div>
+          <div style="font-size:11.5px;line-height:1.65;">
+            <div>• <strong>Vessel Name:</strong> ${activeDataset.vessel_name}</div>
+            <div>• <strong>Tanggal Request:</strong> <span class="num">${activeDataset.request_date}</span></div>
+            <div>• <strong>Item Code:</strong> <span class="mono">${item.item_code}</span></div>
+            <div>• <strong>Item Name:</strong> ${item.item_name}</div>
+            <div>• <strong>Qty yang Diminta:</strong> <span class="num">${item.qty_requested.toLocaleString()} ${item.unit}</span></div>
+            <div>• <strong>Rata-rata 3 Supply Terakhir:</strong> <span class="num">${avg} ${hist.length ? item.unit : ''}</span></div>
+          </div>
+        </div>
+      `;
+    } else if (activeDetailTab === 'JSON') {
+      body.innerHTML = `
+        <pre class="code-pre mono">${JSON.stringify({
+          vessel_name: activeDataset.vessel_name,
+          request_date: activeDataset.request_date,
+          ...item
+        }, null, 2)}</pre>
+      `;
+    }
+  }
+
+  // ================= FILTER & EXPORT ACTIONS =================
+  function setCategoryFilter(cat, btnEl) {
+    categoryFilter = cat;
+    btnEl.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btnEl.classList.add('active');
+    applyFilters();
+  }
+
+  function toggleAttentionFlag() {
+    attentionOnly = !attentionOnly;
+    document.getElementById('btnFlagFilter').classList.toggle('flag-active', attentionOnly);
+    applyFilters();
+  }
+
+  function changeDensityMode(mode) {
+    densityMode = mode;
+    const pane = document.getElementById('itemsListPane');
+    pane.classList.remove('compact-mode', 'expand-all-mode');
+    if (mode === 'COMPACT') pane.classList.add('compact-mode');
+    if (mode === 'EXPAND_ALL') {
+      closeDetailPane();
+      pane.classList.add('expand-all-mode');
+    }
+    showLoadingPill('View: ' + mode, 500);
+  }
+
+  function refreshCurrentData() {
+    if (!activeDataset) {
+      runDeepSeekProcess();
+      return;
+    }
+    showLoadingPill('Refreshed view', 500);
+    applyFilters();
+  }
+
+  // Export ke CSV yang rapi dibuka di Microsoft Excel (1 baris = 1 item + 3 kolom history)
+  function exportCsvExcel() {
+    if (!activeDataset || !activeDataset.items.length) {
+      showLoadingPill('Belum ada data untuk di-export', 1000);
+      return;
+    }
+
+    const headers = [
+      'No', 'Vessel Name', 'Request Date', 'Item Code', 'Item Name', 'Qty Requested', 'Unit',
+      'History Status',
+      'H1 Supply Date', 'H1 Qty Supplied', 'H1 Item Name',
+      'H2 Supply Date', 'H2 Qty Supplied', 'H2 Item Name',
+      'H3 Supply Date', 'H3 Qty Supplied', 'H3 Item Name'
+    ];
+
+    const esc = (val) => `"${String(val ?? '').replace(/"/g, '""')}"`;
+
+    const rows = activeDataset.items.map((it, idx) => {
+      const h = it.history || [];
+      const status = h.length === 0 ? 'No previous supply found' : `${h.length} History Found`;
+      return [
+        idx + 1,
+        activeDataset.vessel_name,
+        activeDataset.request_date,
+        it.item_code,
+        it.item_name,
+        it.qty_requested,
+        it.unit,
+        status,
+        h[0]?.supply_date || '', h[0]?.qty_supplied ?? '', h[0]?.item_name || '',
+        h[1]?.supply_date || '', h[1]?.qty_supplied ?? '', h[1]?.item_name || '',
+        h[2]?.supply_date || '', h[2]?.qty_supplied ?? '', h[2]?.item_name || ''
+      ].map(esc).join(',');
+    });
+
+    const csvContent = '\uFEFF' + [headers.map(esc).join(','), ...rows].join('\r\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `History_Supply_${activeDataset.vessel_name.replace(/\s+/g, '_')}_${activeDataset.request_date}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showLoadingPill('CSV Excel berhasil di-download', 900);
+  }
+
+  // ================= MODALS =================
+  function openWebhookModal() { document.getElementById('webhookModal').classList.add('open'); }
+  function closeWebhookModal() { document.getElementById('webhookModal').classList.remove('open'); }
+
+  function saveWebhookConfig() {
+    const url = document.getElementById('webhookUrlInput').value.trim();
+    localStorage.setItem(STORAGE_KEY_WEBHOOK, url);
+    updateModeBadge();
+    closeWebhookModal();
+    showLoadingPill(url ? 'Webhook n8n disimpan' : 'Mode simulasi aktif', 900);
+  }
+
+  function clearSavedCache() {
+    localStorage.removeItem(STORAGE_KEY_LAST_DATA);
+    activeDataset = null;
+    selectedItemCode = null;
+    document.getElementById('splitContainer').style.display = 'none';
+    document.getElementById('emptyStage').style.display = 'flex';
+    closeWebhookModal();
+    showLoadingPill('Cache dibersihkan', 800);
+  }
+
+  function openJsonTesterModal() {
+    if (activeDataset) {
+      document.getElementById('rawJsonTextarea').value = JSON.stringify(activeDataset, null, 2);
+    }
+    document.getElementById('jsonTesterModal').classList.add('open');
+  }
+  function closeJsonTesterModal() { document.getElementById('jsonTesterModal').classList.remove('open'); }
+
+  function loadFromRawJson() {
+    try {
+      const raw = JSON.parse(document.getElementById('rawJsonTextarea').value);
+      activeDataset = normalizeBackendPayload(raw);
+      localStorage.setItem(STORAGE_KEY_LAST_DATA, JSON.stringify(activeDataset));
+      selectedItemCode = null;
+      renderWorkspace();
+      closeJsonTesterModal();
+      showLoadingPill(`Berhasil memuat ${activeDataset.items.length} item dari JSON`, 1000);
+    } catch (e) {
+      alert('Format JSON tidak valid: ' + e.message);
+    }
+  }
+</script>
+</body>
+</html>
