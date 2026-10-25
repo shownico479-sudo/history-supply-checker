@@ -1,0 +1,75 @@
+{
+ "mode": "OFFLINE (no n8n executions) - published Build Payload/Parse Requisition code run locally against history_export.csv + GENERIC.xlsx, then rendered in headless Chrome with webhook mocked",
+ "ok": true,
+ "total_items": 1000,
+ "items_with_history": 1000,
+ "empty_history_count": 0,
+ "items_with_generic_name": 15,
+ "stage_distribution_all_returned_rows_top3": {
+  "STOCK": 361,
+  "PR": 306,
+  "PI": 473,
+  "UR": 178,
+  "PO": 213
+ },
+ "stage_distribution_latest_per_item": {
+  "STOCK": 186,
+  "PI": 283,
+  "PR": 214,
+  "PO": 208,
+  "UR": 109
+ },
+ "ui": {
+  "default_webhook": "https://mataram9.app.n8n.cloud/webhook/history-checker",
+  "ui_ms": 353,
+  "steps": [
+   [
+    "proc-item done",
+    "JSON"
+   ],
+   [
+    "proc-item done",
+    "1000 items"
+   ],
+   [
+    "proc-item done",
+    "Top 3"
+   ],
+   [
+    "proc-item done",
+    "0.3s"
+   ]
+  ],
+  "rows_rendered": 1000,
+  "stage_dist_ui": {
+   "STOCK": 361,
+   "PR": 306,
+   "PI": 473,
+   "UR": 178,
+   "PO": 213
+  },
+  "labels": [
+   "STOCK=STOCK USAGE",
+   "PR=BARU SAMPAI PR",
+   "PI=SUPPLIED (PI)",
+   "UR=BARU SAMPAI UR",
+   "PO=BARU SAMPAI PO"
+  ],
+  "http500": [
+   "st-extract",
+   true
+  ],
+  "okfalse": [
+   "st-extract",
+   true
+  ],
+  "badjson": [
+   "Error: Invalid JSON from webhook",
+   true
+  ],
+  "offline": "offline",
+  "mock_calls": 1,
+  "page_errors": []
+ },
+ "errors": []
+}
