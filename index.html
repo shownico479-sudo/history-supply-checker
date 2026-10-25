@@ -1892,7 +1892,8 @@
   let selectedCode = null;
 
   window.addEventListener('DOMContentLoaded', () => {
-    dataset = normalizePayload(SHEET_DATA_11);
+    dataset = null;
+    selectedCode = null;
     const inp = document.getElementById('webhookInput');
     if (inp) inp.value = getWebhook();
     const pdf = document.getElementById('pdfInput');
@@ -1900,7 +1901,8 @@
       const f = pdf.files && pdf.files[0];
       if (f) document.getElementById('fileChip').textContent = f.name;
     });
-    renderDashboard();
+    // Blank desk until Process / preset — no dummy data on first paint
+    showEmptyState();
   });
 
   // Keyboard navigation
