@@ -1279,7 +1279,7 @@
           </div>
           <div>
             <h2>Verification</h2>
-            <p>DeepSeek + n8n Engine</p>
+            <p>n8n Engine</p>
           </div>
         </div>
 
@@ -1297,11 +1297,11 @@
             <div class="input-row">
               <div class="input-box">
                 <span class="caps">Vessel Name</span>
-                <input id="vesselInput" class="text-input" type="text" value="MT. MABROUK" />
+                <input id="vesselInput" class="text-input" type="text" value="" />
               </div>
               <div class="input-box">
                 <span class="caps">Req. Date</span>
-                <input id="reqDateInput" class="text-input mono" type="text" value="25/10/2026" />
+                <input id="reqDateInput" class="text-input mono" type="text" value="" />
               </div>
             </div>
           </div>
@@ -1325,15 +1325,7 @@
               </svg>
               <div class="upload-zone-title">Click to choose or drop PDF file</div>
               <div class="upload-zone-sub">Extracts Item Code, Name &amp; Qty</div>
-              <div id="fileChip" class="file-pill mono">UR-MABROUK-OCT2026.pdf</div>
-            </div>
-
-            <div class="input-box" style="margin-top:2px;">
-              <span class="caps">Sample Dataset</span>
-              <div class="preset-switch">
-                <button type="button" class="preset-chip active" onclick="switchDataset('standard', this)">11 Items (Sheet)</button>
-                <button type="button" class="preset-chip" onclick="switchDataset('large', this)">22 Items (Full)</button>
-              </div>
+              <div id="fileChip" class="file-pill mono">No file selected</div>
             </div>
           </div>
 
@@ -1341,26 +1333,26 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
               <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
             </svg>
-            <span>Process with DeepSeek</span>
+            <span>Process PDF</span>
           </button>
 
           <!-- Clean 4-Step Progress -->
           <div class="process-steps">
-            <div class="proc-item done" id="st-upload">
+            <div class="proc-item" id="st-upload">
               <div class="proc-left"><span class="proc-dot"></span><span>Uploading PDF</span></div>
-              <span class="mono" id="meta-upload">OK</span>
+              <span class="mono" id="meta-upload">—</span>
             </div>
-            <div class="proc-item done" id="st-extract">
-              <div class="proc-left"><span class="proc-dot"></span><span>Extracting with DeepSeek</span></div>
-              <span class="mono" id="meta-extract">11 items</span>
+            <div class="proc-item" id="st-extract">
+              <div class="proc-left"><span class="proc-dot"></span><span>Extracting items</span></div>
+              <span class="mono" id="meta-extract">—</span>
             </div>
-            <div class="proc-item done" id="st-lookup">
+            <div class="proc-item" id="st-lookup">
               <div class="proc-left"><span class="proc-dot"></span><span>Looking up Google Sheet</span></div>
-              <span class="mono" id="meta-lookup">Top 3</span>
+              <span class="mono" id="meta-lookup">—</span>
             </div>
-            <div class="proc-item done" id="st-done">
+            <div class="proc-item" id="st-done">
               <div class="proc-left"><span class="proc-dot"></span><span>Done</span></div>
-              <span class="mono" id="meta-done">0.8s</span>
+              <span class="mono" id="meta-done">—</span>
             </div>
           </div>
         </div>
@@ -1389,8 +1381,8 @@
             </div>
             <div class="step-card">
               <span class="caps">Step 2</span>
-              <h4>DeepSeek extraction</h4>
-              <p>n8n extracts Vessel, Request Date, Item Code, Name, and Quantity.</p>
+              <h4>Extract vessel &amp; items</h4>
+              <p>n8n parses Vessel, Request Date, Item Code, Name, and Quantity from the PDF.</p>
             </div>
             <div class="step-card">
               <span class="caps">Step 3</span>
@@ -1404,29 +1396,29 @@
         <div id="canvasHeader" class="canvas-header">
           <div class="summary-strip">
             <div class="vessel-headline">
-              <h2 id="hdrVessel">MT. MABROUK</h2>
-              <span class="vessel-meta-pill mono" id="hdrDate">Req: 25/10/2026</span>
-              <span class="vessel-meta-pill mono" id="hdrRef">Ref: URQC126109901</span>
+              <h2 id="hdrVessel">—</h2>
+              <span class="vessel-meta-pill mono" id="hdrDate">Req: —</span>
+              <span class="vessel-meta-pill mono" id="hdrRef">Ref: —</span>
             </div>
 
             <div class="kpi-group">
               <div class="kpi-item">
-                <span class="kpi-num mono" id="kpiTotal">11</span>
+                <span class="kpi-num mono" id="kpiTotal">0</span>
                 <span class="kpi-label">Items</span>
               </div>
               <div class="kpi-divider"></div>
               <div class="kpi-item">
-                <span class="kpi-num mono" style="color:var(--pi-text);" id="kpiSupplied">9</span>
+                <span class="kpi-num mono" style="color:var(--pi-text);" id="kpiSupplied">0</span>
                 <span class="kpi-label">Supplied (PI / Stock)</span>
               </div>
               <div class="kpi-divider"></div>
               <div class="kpi-item">
-                <span class="kpi-num mono" style="color:var(--po-text);" id="kpiPending">3</span>
+                <span class="kpi-num mono" style="color:var(--po-text);" id="kpiPending">0</span>
                 <span class="kpi-label">Active PR / PO</span>
               </div>
               <div class="kpi-divider"></div>
               <div class="kpi-item">
-                <span class="kpi-num mono" style="color:var(--none-text);" id="kpiNone">1</span>
+                <span class="kpi-num mono" style="color:var(--none-text);" id="kpiNone">0</span>
                 <span class="kpi-label">No History</span>
               </div>
             </div>
@@ -1510,7 +1502,7 @@
         <input id="webhookInput" class="text-input mono" type="url" placeholder="https://mataram9.app.n8n.cloud/webhook/history-checker" />
       </div>
       <p style="font-size:11.5px;color:var(--text-sub);line-height:1.5;">
-        Leave blank to run with the built-in 21-column Google Sheet dataset. When a URL is saved, uploading a PDF posts <code>multipart/form-data</code> directly to n8n.
+        Webhook required. Upload a PDF — the desk posts <code>multipart/form-data</code> (plus extracted text) to n8n. No built-in sample dataset.
       </p>
       <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:4px;">
         <button class="action-btn" onclick="closeModal()">Cancel</button>
@@ -1522,208 +1514,7 @@
 
 <script>
   // ================= REAL 21-COLUMN GOOGLE SHEET SAMPLE DATA =================
-  const SHEET_DATA_11 = {
-    vessel_name: "MT. MABROUK",
-    request_date: "25/10/2026",
-    requisition_no: "URQC126109901",
-    file_name: "UR-MABROUK-OCT2026.pdf",
-    items: [
-      {
-        item_code: "T18.013.00126",
-        item_name: "1ST STAGE RO MEMBRANES",
-        qty_requested: 2,
-        unit: "PCS",
-        history: [
-          {
-            "UR Request": "- MT. MABROUK", "Closed Status": "Closed", "UR Number": "URQC125125969",
-            "Item Code": "T18.013.00126", "Item Name": "1ST STAGE RO MEMBRANES", "UOM": "PCS",
-            "UR Qty": "2.00", "Request Date": "09/12/2025", "PR Number": "LRC125124999", "PR Qty": "2.00",
-            "PO Date": "", "PO Number": "", "PI Number": "", "PI Date": "", "PI Qty": "",
-            "Usage Last Date": "", "Tot.Usage Qty": "0", "Outstanding Status": "NO", "PO Quantity": "", "PO Status": "Active"
-          },
-          {
-            "UR Request": "- MT. MABROUK", "Closed Status": "Closed", "UR Number": "URQC125104987",
-            "Item Code": "T18.013.00126", "Item Name": "1ST STAGE RO MEMBRANES", "UOM": "PCS",
-            "UR Qty": "2.00", "Request Date": "20/10/2025", "PR Number": "LRC125104197", "PR Qty": "2.00",
-            "PO Date": "23/10/2025", "PO Number": "PO/WNS.MDN/2510/0878", "PI Number": "STIC125104643",
-            "PI Date": "27/10/2025", "PI Qty": "2.00", "Usage Last Date": "27/10/2025", "Tot.Usage Qty": "2",
-            "Outstanding Status": "NO", "PO Quantity": "2.00", "PO Status": "Closed"
-          }
-        ]
-      },
-      {
-        item_code: "T33.001.00027",
-        item_name: "LINE FILTER / INTERNAL DUST / AIR FILTER",
-        qty_requested: 1,
-        unit: "UNIT",
-        history: [
-          {
-            "UR Request": "MT. STAR VALIANT", "Closed Status": "Closed", "UR Number": "URQC125094468",
-            "Item Code": "T33.001.00027", "Item Name": "\n- LINE FILTER / INTERNAL DUST / AIR FILTER", "UOM": "UNIT",
-            "UR Qty": "1.00", "Request Date": "19/09/2025", "PR Number": "LRC125093769", "PR Qty": "",
-            "PO Date": "", "PO Number": "", "PI Number": "", "PI Date": "", "PI Qty": "",
-            "Usage Last Date": "29/09/2025", "Tot.Usage Qty": "1", "Outstanding Status": "NO", "PO Quantity": "", "PO Status": "Active"
-          }
-        ]
-      },
-      {
-        item_code: "T51.004.00189",
-        item_name: "AC CAPACITOR (EPCOS) 35+2UF 440VAC",
-        qty_requested: 2,
-        unit: "UNIT",
-        history: [
-          {
-            "UR Request": "- MV. ROYAL PEACE", "Closed Status": "Open", "UR Number": "URQVS26020199",
-            "Item Code": "T51.004.00189", "Item Name": "AC CAPACITOR (EPCOS) 35+2UF 440VAC", "UOM": "UNIT",
-            "UR Qty": "2.00", "Request Date": "10/02/2026", "PR Number": "LRC026021800", "PR Qty": "2.00",
-            "PO Date": "18/02/2026", "PO Number": "PO/WNS.MDN/2602/0712", "PI Number": "", "PI Date": "", "PI Qty": "",
-            "Usage Last Date": "", "Tot.Usage Qty": "0", "Outstanding Status": "YES", "PO Quantity": "2.00", "PO Status": "Active"
-          },
-          {
-            "UR Request": "- MV. ROYAL PEACE", "Closed Status": "Closed", "UR Number": "URQVS25120154",
-            "Item Code": "T51.004.00189", "Item Name": "AC CAPACITOR (EPCOS) 35+2UF 440VAC", "UOM": "UNIT",
-            "UR Qty": "2.00", "Request Date": "22/12/2025", "PR Number": "LRC025121695", "PR Qty": "2.00",
-            "PO Date": "15/01/2026", "PO Number": "PO/WNS.MDN/2601/0510", "PI Number": "STIC126010261",
-            "PI Date": "19/01/2026", "PI Qty": "2.00", "Usage Last Date": "19/01/2026", "Tot.Usage Qty": "2",
-            "Outstanding Status": "NO", "PO Quantity": "2.00", "PO Status": "Closed"
-          }
-        ]
-      },
-      {
-        item_code: "T44.005.00001",
-        item_name: "15PPM BILGE ALARM (JIUJIANG GONGCHUANG) TYPE : X0C-01 WITH CCS CERTIFICATE",
-        qty_requested: 1,
-        unit: "UNIT",
-        history: [
-          {
-            "UR Request": "- MT. SEABORNE PETRO", "Closed Status": "Closed", "UR Number": "URQC125126330",
-            "Item Code": "T44.005.00001", "Item Name": "15PPM BILGE ALARM (JIUJIANG GONGCHUANG) TYPE : X0C-01 WITH CCS CERTIFICATE", "UOM": "UNIT",
-            "UR Qty": "1.00", "Request Date": "31/12/2025", "PR Number": "LRC125125295", "PR Qty": "1.00",
-            "PO Date": "30/01/2026", "PO Number": "PO/WNS.MDN/2601/0991", "PI Number": "STIC526020151",
-            "PI Date": "25/02/2026", "PI Qty": "1.00", "Usage Last Date": "25/02/2026", "Tot.Usage Qty": "1",
-            "Outstanding Status": "NO", "PO Quantity": "1.00", "PO Status": "Closed"
-          },
-          {
-            "UR Request": "- MT. MABROUK", "Closed Status": "Closed", "UR Number": "URQC125125868",
-            "Item Code": "T44.005.00001", "Item Name": "15PPM BILGE ALARM (JIUJIANG GONGCHUANG) TYPE : X0C-01 WITH CCS CERTIFICATE", "UOM": "UNIT",
-            "UR Qty": "1.00", "Request Date": "03/12/2025", "PR Number": "LRC125124921", "PR Qty": "",
-            "PO Date": "", "PO Number": "", "PI Number": "", "PI Date": "", "PI Qty": "",
-            "Usage Last Date": "", "Tot.Usage Qty": "0", "Outstanding Status": "NO", "PO Quantity": "", "PO Status": "Active"
-          }
-        ]
-      },
-      {
-        item_code: "T18.006.01172",
-        item_name: "AC COMPRESSOR HERMETIC (DAIKIN) TYPE : JT300D-YE2",
-        qty_requested: 2,
-        unit: "UNIT",
-        history: [
-          {
-            "UR Request": "MT. DEFIANCE", "Closed Status": "Closed", "UR Number": "URQC125115405",
-            "Item Code": "T18.006.01172", "Item Name": "AC COMPRESSOR HERMETIC (DAIKIN) TYPE : JT300D-YE2\n- ", "UOM": "UNIT",
-            "UR Qty": "2.00", "Request Date": "11/11/2025", "PR Number": "LRC125114527", "PR Qty": "2.00",
-            "PO Date": "14/11/2025", "PO Number": "PO/WNS.MDN/2511/0489", "PI Number": "STIC025110775",
-            "PI Date": "18/11/2025", "PI Qty": "2.00", "Usage Last Date": "18/11/2025", "Tot.Usage Qty": "2",
-            "Outstanding Status": "NO", "PO Quantity": "2.00", "PO Status": "Closed"
-          },
-          {
-            "UR Request": "MT. DEFIANCE", "Closed Status": "Closed", "UR Number": "URQC125094648",
-            "Item Code": "T18.006.01172", "Item Name": "AC COMPRESSOR HERMETIC (DAIKIN) TYPE : JT300D-YE2\n- ", "UOM": "UNIT",
-            "UR Qty": "2.00", "Request Date": "30/09/2025", "PR Number": "LRC125093909", "PR Qty": "2.00",
-            "PO Date": "13/10/2025", "PO Number": "PO/WNS.MDN/2510/0482", "PI Number": "STIC025100706",
-            "PI Date": "16/10/2025", "PI Qty": "2.00", "Usage Last Date": "16/10/2025", "Tot.Usage Qty": "2",
-            "Outstanding Status": "NO", "PO Quantity": "2.00", "PO Status": "Closed"
-          }
-        ]
-      },
-      {
-        item_code: "T41.002.00109",
-        item_name: "OIL SEAL (NOK) TC 25 40 7",
-        qty_requested: 4,
-        unit: "UNIT",
-        history: [
-          {
-            "UR Request": "MT. MUMBAI", "Closed Status": "Closed", "UR Number": "URQC025091275",
-            "Item Code": "T41.002.00109", "Item Name": "\n\n- OIL SEAL (NOK) TC 25 40 7", "UOM": "UNIT",
-            "UR Qty": "2.00", "Request Date": "09/09/2025", "PR Number": "LRC025091190", "PR Qty": "2.00",
-            "PO Date": "11/09/2025", "PO Number": "PO/WNS.MDN/2509/0384", "PI Number": "STIC225091874",
-            "PI Date": "11/09/2025", "PI Qty": "2.00", "Usage Last Date": "11/09/2025", "Tot.Usage Qty": "2",
-            "Outstanding Status": "NO", "PO Quantity": "2.00", "PO Status": "Closed"
-          }
-        ]
-      },
-      {
-        item_code: "T18.008.2481",
-        item_name: "2/2 WAY SOLENOID VALVE",
-        qty_requested: 1,
-        unit: "PCS",
-        history: [
-          {
-            "UR Request": "- MT. WEST POINT", "Closed Status": "Open", "UR Number": "URQC125125922",
-            "Item Code": "T18.008.2481", "Item Name": "2/2 WAY SOLENOID VALVE", "UOM": "PCS",
-            "UR Qty": "1.00", "Request Date": "05/12/2025", "PR Number": "LRC125124963", "PR Qty": "1.00",
-            "PO Date": "06/01/2026", "PO Number": "PO/WNS.MDN/2601/0086", "PI Number": "STIC126010289",
-            "PI Date": "20/01/2026", "PI Qty": "1.00", "Usage Last Date": "20/01/2026", "Tot.Usage Qty": "1",
-            "Outstanding Status": "NO", "PO Quantity": "1.00", "PO Status": "Closed"
-          }
-        ]
-      },
-      {
-        item_code: "T18.005.13319",
-        item_name: "3 WAY SOLENOID VALVE",
-        qty_requested: 2,
-        unit: "UNIT",
-        history: [
-          {
-            "UR Request": "- LPGC. GAS EVA", "Closed Status": "Closed", "UR Number": "URQC125094614",
-            "Item Code": "T18.005.13319", "Item Name": "3 WAY SOLENOID VALVE", "UOM": "UNIT",
-            "UR Qty": "2.00", "Request Date": "29/09/2025", "PR Number": "LRC125093874", "PR Qty": "2.00",
-            "PO Date": "20/10/2025", "PO Number": "PO/WNS.MDN/2510/0763", "PI Number": "STIC125115105",
-            "PI Date": "24/11/2025", "PI Qty": "2.00", "Usage Last Date": "24/11/2025", "Tot.Usage Qty": "2",
-            "Outstanding Status": "NO", "PO Quantity": "2.00", "PO Status": "Closed"
-          }
-        ]
-      },
-      {
-        item_code: "T51.004.00193",
-        item_name: "AC CAPACITOR (UNICON) 4+13UF 400V - 500V",
-        qty_requested: 1,
-        unit: "UNIT",
-        history: [
-          {
-            "UR Request": "- MV. CEMTRANS", "Closed Status": "Closed", "UR Number": "URQVS25120160",
-            "Item Code": "T51.004.00193", "Item Name": "AC CAPACITOR (UNICON) 4+13UF 400V - 500V", "UOM": "UNIT",
-            "UR Qty": "1.00", "Request Date": "31/12/2025", "PR Number": "LRC025121740", "PR Qty": "1.00",
-            "PO Date": "28/01/2026", "PO Number": "PO/WNS.MDN/2601/0866", "PI Number": "STIC326020065",
-            "PI Date": "09/02/2026", "PI Qty": "1.00", "Usage Last Date": "12/02/2026", "Tot.Usage Qty": "1",
-            "Outstanding Status": "NO", "PO Quantity": "1.00", "PO Status": "Closed"
-          }
-        ]
-      },
-      {
-        item_code: "T22.004.00090",
-        item_name: "90 BATU GERINDA POTONG 4 INCH",
-        qty_requested: 12,
-        unit: "EACH",
-        history: [
-          {
-            "UR Request": "- LPGC. GAS EVA", "Closed Status": "Closed", "UR Number": "URQC125105069",
-            "Item Code": "T22.004.00090", "Item Name": "90 BATU GERINDA POTONG 4 INCH", "UOM": "EACH",
-            "UR Qty": "12.00", "Request Date": "22/10/2025", "PR Number": "", "PR Qty": "",
-            "PO Date": "", "PO Number": "", "PI Number": "", "PI Date": "", "PI Qty": "",
-            "Usage Last Date": "", "Tot.Usage Qty": "0", "Outstanding Status": "NO", "PO Quantity": "", "PO Status": "Active"
-          }
-        ]
-      },
-      {
-        item_code: "T22.003.0098",
-        item_name: "ADJUSTABLE WRENCH 12 INCH (KUNCI INGGRIS)",
-        qty_requested: 2,
-        unit: "UNIT",
-        history: []
-      }
-    ]
-  };
+  // Sample dataset removed — input is PDF upload only
 
   // ================= DATA SANITIZERS & STAGE ENGINE =================
   function cleanText(raw) {
@@ -1920,29 +1711,7 @@
     if (ms > 0) setTimeout(() => pill.classList.remove('visible'), ms);
   }
 
-  function switchDataset(mode, btn) {
-    currentMode = mode;
-    document.querySelectorAll('.preset-chip').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    let raw = JSON.parse(JSON.stringify(SHEET_DATA_11));
-    if (mode === 'large') {
-      const batch2 = raw.items.map((it, i) => ({
-        ...it,
-        item_code: `${it.item_code}-B${i + 1}`,
-        item_name: `${it.item_name} (DECK / ENGINE SPARE)`
-      }));
-      raw.items = [...raw.items, ...batch2];
-      document.getElementById('fileChip').textContent = 'UR-MABROUK-22ITEMS.pdf';
-    } else {
-      document.getElementById('fileChip').textContent = 'UR-MABROUK-OCT2026.pdf';
-    }
-
-    dataset = normalizePayload(raw);
-    closeDrawer();
-    renderDashboard();
-    flashPill(`Loaded ${dataset.items.length} items`);
-  }
+  function switchDataset() { /* removed: PDF upload only */ }
 
   const DEFAULT_WEBHOOK = "https://mataram9.app.n8n.cloud/webhook/history-checker";
   const WEBHOOK_KEY = 'hsc_webhook_url';
@@ -1983,49 +1752,36 @@
 
   async function processRequisition() {
     const btn = document.getElementById('btnProcess');
-    btn.disabled = true;
-    showLoadedState();
-    ['upload', 'extract', 'lookup', 'done'].forEach(s => setStep(s, '', '—'));
+    const file = document.getElementById('pdfInput').files?.[0];
+    if (!file) {
+      flashPill('Upload a PDF first', 1400);
+      showEmptyState();
+      return;
+    }
     const url = getWebhook();
+    if (!url) {
+      flashPill('Set webhook URL in settings', 1600);
+      openModal();
+      return;
+    }
+    btn.disabled = true;
+    ['upload', 'extract', 'lookup', 'done'].forEach(s => setStep(s, '', '—'));
     const vessel = cleanText(document.getElementById('vesselInput').value);
     const reqDate = cleanText(document.getElementById('reqDateInput').value);
     const t0 = performance.now();
     let step = 'upload', timer = null;
     try {
-      if (!url) {
-        flashPill('Offline preset (no webhook)', 0);
-        setStep('upload', 'done', 'Local');
-        dataset.vessel_name = vessel || dataset.vessel_name;
-        dataset.request_date = reqDate || dataset.request_date;
-        setStep('extract', 'done', `${dataset.items.length} items`);
-        setStep('lookup', 'done', 'Top 3');
-        setStep('done', 'done', 'offline');
-        renderDashboard();
-        flashPill('Audit complete (offline)', 900);
-        return;
-      }
       flashPill('Sending to n8n...', 0);
       setStep('upload', 'active');
-      const file = document.getElementById('pdfInput').files?.[0];
       let body; const headers = {};
-      if (file) {
-        let text = '';
-        try { text = await extractPdfText(file); } catch (e) { console.warn('PDF text extraction failed', e); }
-        body = new FormData();
-        body.append('vessel_name', vessel);
-        body.append('request_date', reqDate);
-        if (text) body.append('text', text);
-        body.append('file', file, file.name);
-      } else {
-        const items = (dataset?.items || []).map(it => ({
-          item_code: it.item_code, item_name: it.item_name, qty_requested: it.qty_requested, unit: it.unit
-        }));
-        const text = [`Vessel: ${vessel}`, `Request Date: ${reqDate}`,
-          ...items.map((it, i) => `${i + 1}. ${it.item_code} ${it.item_name} ${it.qty_requested} ${it.unit}`)].join('\n');
-        headers['Content-Type'] = 'application/json';
-        body = JSON.stringify({ vessel_name: vessel, request_date: reqDate, items, text });
-      }
-      setStep('upload', 'done', file ? 'PDF' : 'JSON');
+      let text = '';
+      try { text = await extractPdfText(file); } catch (e) { console.warn('PDF text extraction failed', e); }
+      body = new FormData();
+      body.append('vessel_name', vessel);
+      body.append('request_date', reqDate);
+      if (text) body.append('text', text);
+      body.append('file', file, file.name);
+      setStep('upload', 'done', 'PDF');
       step = 'extract';
       setStep('extract', 'active');
       flashPill(file ? 'Extracting with DeepSeek...' : 'Looking up history...', 0);
@@ -2312,6 +2068,11 @@
   }
 
   function showLoadedState() {
+    if (!dataset) {
+      showEmptyState();
+      flashPill('Upload a PDF first', 1200);
+      return;
+    }
     document.getElementById('emptyView').style.display = 'none';
     document.getElementById('canvasHeader').style.display = 'flex';
     document.getElementById('splitStage').style.display = 'flex';
