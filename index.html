@@ -47,11 +47,13 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --row-cols: minmax(118px, 140px) minmax(0, 1.2fr) minmax(0, 1.8fr) minmax(72px, 96px); }
 
     html, body {
       height: 100%;
       width: 100%;
       overflow: hidden;
+      min-width: 1024px;
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       font-size: 13px;
       color: var(--text-main);
@@ -84,7 +86,9 @@
       display: grid;
       grid-template-columns: 52px minmax(0, 1fr);
       height: 100vh;
-      width: 100vw;
+      height: 100dvh;
+      width: 100%;
+      min-height: 0;
     }
 
     /* THIN ICON RAIL */
@@ -134,7 +138,9 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      padding: 14px 20px 18px 20px;
+      height: 100dvh;
+      min-height: 0;
+      padding: clamp(8px, 1.2vh, 14px) clamp(12px, 1.2vw, 20px) clamp(10px, 1.4vh, 18px);
       gap: 12px;
       min-width: 0;
       overflow: hidden;
@@ -238,7 +244,7 @@
     /* ================= WORKSPACE (LEFT INPUT + RIGHT CANVAS) ================= */
     .workspace {
       display: grid;
-      grid-template-columns: 290px minmax(0, 1fr);
+      grid-template-columns: minmax(250px, clamp(250px, 17vw, 320px)) minmax(0, 1fr);
       gap: 16px;
       flex: 1;
       min-height: 0;
@@ -523,7 +529,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 20px;
+      gap: 8px 20px;
+      flex-wrap: wrap;
+      min-width: 0;
     }
 
     .vessel-headline {
@@ -555,8 +563,10 @@
     .kpi-group {
       display: flex;
       align-items: center;
-      gap: 20px;
-      flex-shrink: 0;
+      gap: 8px 16px;
+      flex-wrap: wrap;
+      flex-shrink: 1;
+      min-width: 0;
     }
 
     .kpi-item {
@@ -587,6 +597,7 @@
       align-items: center;
       gap: 8px;
       min-width: 0;
+      flex-wrap: wrap;
     }
 
     .seg-tabs {
@@ -706,7 +717,7 @@
     }
     .step-cards {
       display: grid;
-      grid-template-columns: repeat(3, 220px);
+      grid-template-columns: repeat(3, minmax(0, 220px));
       gap: 14px;
       text-align: left;
     }
@@ -741,7 +752,7 @@
 
     .list-column-headers {
       display: grid;
-      grid-template-columns: 140px minmax(180px, 1.25fr) minmax(290px, 1.75fr) 100px;
+      grid-template-columns: var(--row-cols);
       gap: 16px;
       padding: 8px 20px;
       background: var(--surface-subtle);
@@ -753,7 +764,9 @@
     .rows-container {
       flex: 1;
       overflow-y: auto;
-      padding: 10px 20px 16px 20px;
+      overflow-x: hidden;
+      min-height: 0;
+      padding: 10px clamp(10px, 1.2vw, 20px) 16px;
       display: flex;
       flex-direction: column;
       gap: 8px;
@@ -767,7 +780,7 @@
       padding: 11px 16px;
       box-shadow: var(--shadow-card);
       display: grid;
-      grid-template-columns: 140px minmax(180px, 1.25fr) minmax(290px, 1.75fr) 100px;
+      grid-template-columns: var(--row-cols);
       gap: 16px;
       align-items: center;
       cursor: pointer;
@@ -853,7 +866,7 @@
 
     .hist-line {
       display: grid;
-      grid-template-columns: 74px 48px minmax(0, 1fr) auto;
+      grid-template-columns: auto auto minmax(0, 1fr) auto;
       align-items: center;
       gap: 8px;
       padding: 4px 8px;
@@ -954,7 +967,7 @@
     }
 
     .split-stage.drawer-open .detail-drawer {
-      width: 400px;
+      width: clamp(320px, 28vw, 420px);
       border-left-width: 1px;
     }
 
@@ -1183,6 +1196,15 @@
       flex-direction: column;
       gap: 12px;
     }
+    .gen-name { font-size: 10.5px; color: var(--text-muted); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .xcode { font-size: 9px; font-weight: 700; color: var(--po-text); background: var(--po-bg); border-radius: 4px; padding: 0 4px; margin-left: 4px; }
+    .hist-doc { min-width: 0; }
+    @media (max-width: 1440px) {
+      .hist-line { gap: 6px; padding: 3px 6px; }
+      .item-row { gap: 12px; padding: 10px 12px; }
+      .list-column-headers { gap: 12px; }
+    }
+    @media (max-height: 820px) { .left-body { gap: 10px; padding: 12px; } }
   </style>
 </head>
 <body>
@@ -1656,20 +1678,22 @@
     const root = Array.isArray(raw) ? (raw[0]?.json || raw[0]) : (raw.data || raw);
     const vessel = cleanText(root.vessel_name || root.vessel || document.getElementById('vesselInput').value) || "UNKNOWN VESSEL";
     const reqDate = cleanText(root.request_date || document.getElementById('reqDateInput').value) || "—";
-    const reqNo = cleanText(root.requisition_no || "URQC126109901");
+    const reqNo = cleanText(root.requisition_no) || "—";
 
     const items = (root.items || []).map((it, idx) => {
       const code = cleanText(it.item_code || it["Item Code"]) || `ITEM-${idx + 1}`;
       const name = cleanText(it.item_name || it["Item Name"]) || `Item #${idx + 1}`;
-      const qty  = toNum(it.qty_requested ?? it["UR Qty"] ?? 1);
+      const rq = it.qty_requested ?? it["UR Qty"];
+      const qty  = (rq === undefined || rq === null || rq === '') ? '?' : toNum(rq);
+      const generic = cleanText(it.generic_name);
       const unit = cleanText(it.unit || it["UOM"]) || "UNIT";
 
       const hist = (it.history || [])
-        .map(h => normalizeHistoryRecord(h, name, unit))
+        .map(h => Object.assign(normalizeHistoryRecord(h, name, unit), { histCode: cleanText(h["Item Code"] || h.item_code) }))
         .sort((a, b) => b.timestamp - a.timestamp)
         .slice(0, 3);
 
-      return { _idx: idx + 1, item_code: code, item_name: name, qty_requested: qty, unit, history: hist };
+      return { _idx: idx + 1, item_code: code, item_name: name, qty_requested: qty, unit, generic_name: generic, history: hist };
     });
 
     return { vessel_name: vessel, request_date: reqDate, requisition_no: reqNo, items };
@@ -1799,6 +1823,8 @@
       setStep('extract', 'done', `${nd.items.length} items`);
       step = 'lookup';
       dataset = nd;
+      if (nd.vessel_name && nd.vessel_name !== 'UNKNOWN VESSEL') document.getElementById('vesselInput').value = nd.vessel_name;
+      if (nd.request_date && nd.request_date !== '—') document.getElementById('reqDateInput').value = nd.request_date;
       setStep('lookup', 'done', 'Top 3');
       setStep('done', 'done', `${((performance.now() - t0) / 1000).toFixed(1)}s`);
       closeDrawer();
@@ -1897,7 +1923,7 @@
           <div class="hist-line">
             <span class="hist-date mono">${h.dateDisplay}</span>
             <span class="hist-tag mono tag-${h.stage}">${h.stage}</span>
-            <span class="hist-doc mono" title="${h.docDisplay} | ${h.vessel}">${h.docDisplay}</span>
+            <span class="hist-doc mono" title="${h.docDisplay} | ${h.vessel}">${h.docDisplay}${h.histCode && h.histCode !== item.item_code ? `<span class="xcode mono" title="History code ${h.histCode} (cross-brand / generic match)">≠ ${h.histCode}</span>` : ''}</span>
             <span class="hist-qty mono">${h.qtyDisplay} ${h.uom}</span>
           </div>
         `).join('');
@@ -1919,6 +1945,7 @@
 
         <div class="col-item">
           <div class="item-title">${item.item_name}</div>
+          ${item.generic_name && item.generic_name !== item.item_name ? `<div class="gen-name" title="Generic: ${item.generic_name}">≈ ${item.generic_name}</div>` : ''}
         </div>
 
         <div class="col-history">
